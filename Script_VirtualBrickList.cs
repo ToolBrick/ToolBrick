@@ -26,6 +26,17 @@ function virtualBrickList::onAdd(%this, %obj)
 {
 	%obj.numBricks = 0;
 	%obj.absoluteRotation = 0;
+	%obj.markers = new SimSet();
+}
+
+function virtualBrickList::onRemove(%this, %obj)
+{
+	if (isObject(%obj.markers))
+	{
+		while (%obj.markers.getCount())
+			%obj.markers.getObject(0).delete();
+		%obj.markers.delete();
+	}
 }
 
 function addCustSave(%pref)
@@ -826,6 +837,9 @@ function virtualBrickList::shiftBricks(%obj, %dis)
 	%obj.minY += %y;
 	%obj.maxZ += %z;
 	%obj.minZ += %z;
+	
+	for (%i = 0; %i < %obj.markers.getCount(); %i++)
+		%obj.markers.getObject(%i).shift(%dis);
 }
 
 
@@ -1266,5 +1280,51 @@ function virtualBrickList::getTopFace(%obj)
 {
 	return %obj.maxZ + getWord(%obj.brickOffset, 2);
 }
+
+//markers
+function virtualBrickList::addMarker(%obj, %name, %point, %pDir, %sDir)
+{
+	if (%pDir < 0 || %pDir > 5)
+	{
+		error("ERROR: virtualBrickList::addMarker - primary direction is incorrect");
+	}
+	else
+	{
+		if (%sDir == "")
+		{
+			if (%pDir < 4)
+				%sDir = 4;
+			else
+				%sDir = 0;
+		}
+		if ((%sDir < 4 && %pDir < 4) || (%sDir > 3 && %pDir > 3))
+		{
+			error("ERROR: virtualBrickList::addMarker - secondary direction is incorrect");
+		}
+		else
+		{
+			%mark = new ScriptObject()
+			{
+				class = vblMarker;
+				primary = %pDir;
+				secondary = %sDir;
+			};
+			%obj.markers[%name] = %mark;
+			%obj.markers.add(%mark);
+		}
+	}
+}
+
+function virtualBrickList::removeMarker(%obj, %name)
+{
+	if (isObject(%obj.markers[%name]))
+	{
+		%obj.markers.remove(%obj.markers[%name]);
+		%obj.markers[%name] = "";
+	}
+}
+
+
+
 };
 activatePackage(vblPackage);
