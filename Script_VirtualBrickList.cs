@@ -967,6 +967,7 @@ function virtualBrickList::getWorldBox(%obj)
 function virtualBrickList::rotateBricksCW(%obj, %times)
 {
 	if (%times $= "") %times = 1;
+	%times %= 4;
 	if (!%times) return;
 	%cpos = %obj.getCenter();
 	%cx = getWord(%cpos, 0);
@@ -1001,12 +1002,17 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 		}
 		%obj.onAddBasicData(%i);
 	}
+	for (%i = 0; %i < %obj.markers.getCount(); %i++)
+	{
+		%obj.markers.getObject(%i).rotateCW(%times);
+	}
 }
 
 function virtualBrickList::rotateBricksCCW(%obj, %times)
 {
 //echo(%obj SPC %times);
 	if (%times $= "") %times = 1;
+	%times %= 4;
 	if (!%times) return;
 	%cpos = %obj.getCenter();
 	%cx = getWord(%cpos, 0);
@@ -1040,6 +1046,10 @@ function virtualBrickList::rotateBricksCCW(%obj, %times)
 				%obj.cs_rotateCCW(%csName, %i, %times);
 		}
 		%obj.onAddBasicData(%i);
+	}
+	for (%i = 0; %i < %obj.markers.getCount(); %i++)
+	{
+		%obj.markers.getObject(%i).rotateCCW(%times);
 	}
 }
 
@@ -1306,8 +1316,10 @@ function virtualBrickList::addMarker(%obj, %name, %point, %pDir, %sDir)
 			%mark = new ScriptObject()
 			{
 				class = vblMarker;
+				position = %point;
 				primary = %pDir;
 				secondary = %sDir;
+				vbl = %obj;
 			};
 			%obj.markers[%name] = %mark;
 			%obj.markers.add(%mark);
@@ -1324,7 +1336,96 @@ function virtualBrickList::removeMarker(%obj, %name)
 	}
 }
 
+function vblMarker::shift(%obj, %dis)
+{
+	%obj.position = VectorAdd(%obj.position, %dis);
+}
 
+function vblMarker::rotateCW(%obj, %times)
+{
+	if (%times < 0)
+	{
+		%obj.rotateCCW(-%times);
+	}
+	else
+	{
+		//update position
+		%cpos = %obj.getCenter();
+		%cx = getWord(%cpos, 0);
+		%cy = getWord(%cpos, 1);
+		%cz = getWord(%cpos, 2);
+		
+		%x = getWord(%obj.position, 0);
+		%y = getWord(%obj.position, 1);
+		%z = getWord(%obj.position, 2);
+		%ux = %x - %cx;
+		%uy = %y - %cy;
+		for (%d = 0; %d < %times; %d++)
+		{
+			%tx = %ux;
+			%ux = %uy;
+			%uy = %tx;
+			%uy = -%uy;
+		}
+		%obj.position = %ux + %cx SPC %uy + %cy SPC %z;
+		
+		//update rotation
+		if (%obj.primary < 4)
+		{
+			%obj.primary += %times;
+			%obj.primary %= 4;
+		}
+		else
+		{
+			%obj.secondary += %times;
+			%obj.secondary %= 4;
+		}
+	}
+}
+
+function vblMarker::alignWith(%obj, %marker)
+{
+	if (%obj.primary < 4 && %marker.primary < 4)
+	{
+		//only have to align the primary
+		%rotNeeded = %marker.primary + 2;
+		%rotNeeded %= 4;
+		if (%rotNeeded < %obj.primary)
+			%rotNeeded += 4;
+		%rot = %rotNeeded - %obj.primary;
+		%obj.vbl.rotateBricksCW(%rot);
+		%obj.vbl.shiftbricks(VectorSub(%marker.position, %obj.position));
+	}
+	else if (%obj.primary > 3 && %marker.primary > 3 && (%obj.primary != %marker.primary))
+	{
+		//only have to align the primary
+		%rotNeeded = %marker.secondary + 2;
+		%rotNeeded %= 4;
+		if (%rotNeeded < %obj.secondary)
+			%rotNeeded += 4;
+		%rot = %rotNeeded - %obj.secondary;
+		%obj.vbl.rotateBricksCW(%rot);
+		%obj.vbl.shiftbricks(VectorSub(%marker.position, %obj.position));
+	}
+	else
+	{
+		error("ERROR: vblMarker::alignWith - directions don't match up");
+	}
+}
+
+function vblMarker::rotateCCW(%obj, %times)
+{
+	if (%times < 0)
+	{
+		%obj.rotateCW(-%times);
+	}
+	else
+	{
+		%times %= 4;
+		if (%times > 0)
+			%obj.rotateCW(4 - %times);
+	}
+}
 
 };
 activatePackage(vblPackage);
