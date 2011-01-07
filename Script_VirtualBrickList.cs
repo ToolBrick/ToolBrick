@@ -3,6 +3,10 @@
 //function virtualBrickList::addBrick(%datablock, %pos, %angleid, %unknown, %color, %print, %colorfx, %shapefx)
 //function virtualBrickList::addBrickObj(%brick)
 //making this change so svn should update
+
+//above text is old
+//TODO: make water bricks place correctly
+
 package vblPackage
 {
 function newVBL(%returnBrickSet)
@@ -969,6 +973,13 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 	if (%times $= "") %times = 1;
 	%times %= 4;
 	if (!%times) return;
+	
+	//markers must be rotated before the bricks, because the center changes!
+	for (%i = 0; %i < %obj.markers.getCount(); %i++)
+	{
+		%obj.markers.getObject(%i).rotateCW(%times);
+	}	
+
 	%cpos = %obj.getCenter();
 	%cx = getWord(%cpos, 0);
 	%cy = getWord(%cpos, 1);
@@ -976,7 +987,8 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 	%obj.resetSize();
 	for (%i = 0; %i < %obj.numBricks; %i++)
 	{
-		%pos = %obj.virBricks[%i, 1];
+		//%pos = %obj.virBricks[%i, 1];
+		%pos = %obj.getPosition(%i);
 		%x = getWord(%pos, 0);
 		%y = getWord(%pos, 1);
 		%z = getWord(%pos, 2);
@@ -992,7 +1004,7 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 		}
 		while (%obj.virBricks[%i, 2] > 3)
 			%obj.virBricks[%i, 2] -= 4;
-		%obj.virBricks[%i, 1] = %ux + %cx SPC %uy + %cy SPC %z;
+		%obj.setPosition(%i, %ux + %cx SPC %uy + %cy SPC %z);
 		//now give custom save properties a chance to change
 		for (%c = 0; %c < $numCustSaves; %c++)
 		{
@@ -1002,10 +1014,6 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 		}
 		%obj.onAddBasicData(%i);
 	}
-	for (%i = 0; %i < %obj.markers.getCount(); %i++)
-	{
-		%obj.markers.getObject(%i).rotateCW(%times);
-	}
 }
 
 function virtualBrickList::rotateBricksCCW(%obj, %times)
@@ -1014,6 +1022,13 @@ function virtualBrickList::rotateBricksCCW(%obj, %times)
 	if (%times $= "") %times = 1;
 	%times %= 4;
 	if (!%times) return;
+	
+	//markers must be rotated before the bricks, because the center changes!
+	for (%i = 0; %i < %obj.markers.getCount(); %i++)
+	{
+		%obj.markers.getObject(%i).rotateCCW(%times);
+	}
+	
 	%cpos = %obj.getCenter();
 	%cx = getWord(%cpos, 0);
 	%cy = getWord(%cpos, 1);
@@ -1021,7 +1036,8 @@ function virtualBrickList::rotateBricksCCW(%obj, %times)
 	%obj.resetSize();
 	for (%i = 0; %i < %obj.numBricks; %i++)
 	{
-		%pos = %obj.virBricks[%i, 1];
+		//%pos = %obj.virBricks[%i, 1];
+		%pos = %obj.getPosition(%i);
 		%x = getWord(%pos, 0);
 		%y = getWord(%pos, 1);
 		%z = getWord(%pos, 2);
@@ -1037,7 +1053,7 @@ function virtualBrickList::rotateBricksCCW(%obj, %times)
 		}
 		while (%obj.virBricks[%i, 2] < 0)
 			%obj.virBricks[%i, 2] += 4;
-		%obj.virBricks[%i, 1] = %ux + %cx SPC %uy + %cy SPC %z;
+		%obj.setPosition(%i, %ux + %cx SPC %uy + %cy SPC %z);
 		//now give custom save properties a chance to change
 		for (%c = 0; %c < $numCustSaves; %c++)
 		{
@@ -1046,10 +1062,6 @@ function virtualBrickList::rotateBricksCCW(%obj, %times)
 				%obj.cs_rotateCCW(%csName, %i, %times);
 		}
 		%obj.onAddBasicData(%i);
-	}
-	for (%i = 0; %i < %obj.markers.getCount(); %i++)
-	{
-		%obj.markers.getObject(%i).rotateCCW(%times);
 	}
 }
 
@@ -1315,7 +1327,7 @@ function virtualBrickList::addMarker(%obj, %name, %point, %pDir, %sDir)
 		{
 			%mark = new ScriptObject()
 			{
-				class = vblMarker;
+				class = "vblMarker";
 				position = %point;
 				primary = %pDir;
 				secondary = %sDir;
@@ -1332,6 +1344,7 @@ function virtualBrickList::removeMarker(%obj, %name)
 	if (isObject(%obj.markers[%name]))
 	{
 		%obj.markers.remove(%obj.markers[%name]);
+		%obj.markers[%name].delete();
 		%obj.markers[%name] = "";
 	}
 }
@@ -1350,7 +1363,7 @@ function vblMarker::rotateCW(%obj, %times)
 	else
 	{
 		//update position
-		%cpos = %obj.getCenter();
+		%cpos = %obj.vbl.getCenter();
 		%cx = getWord(%cpos, 0);
 		%cy = getWord(%cpos, 1);
 		%cz = getWord(%cpos, 2);
