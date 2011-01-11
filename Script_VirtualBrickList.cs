@@ -636,8 +636,16 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 		%b.setItemPosition(%obj.virBricks[%i, "Item", 1]);
 		%b.setItemRespawnTime(%obj.virBricks[%i, "Item", 2]);
 	}
+	
+	%obj.onCreateBrick(%b);
+	
 	return %b;
 	//add code to handle the emitters and other +- stuff
+}
+
+function virtualBrickList::onCreateBrick(%obj, %b)
+{
+	//override this
 }
 
 function virtualBrickList::loadBricks(%obj)
