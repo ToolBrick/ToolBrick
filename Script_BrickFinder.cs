@@ -78,7 +78,7 @@ function brickFinder::search(%obj, %base, %findMethod, %includeTypes, %excludeTy
 	}
 	%obj.numIncTypes = %f - %numFakes;
 	%numFakes = 0;
-	echo(%excludeTypes);
+	echo("exclude ty[es!" SPC %excludeTypes);
 	for (%f = 0; %f < getFieldCount(%excludeTypes); %f++)
 	{
 		%field = getField(%excludeTypes, %f);
@@ -88,7 +88,10 @@ function brickFinder::search(%obj, %base, %findMethod, %includeTypes, %excludeTy
 			continue;
 		}
 		%obj.excTypes[%f] = $BF::TypeFunctions[$BF::Types[%field]];
-		%evalString = $BF::TypeFunctions[%group.id] @ "(\t";
+		%idName = getWord(%field, 0);
+		%id = $BF::Types[%idName];
+		%evalString = $BF::TypeFunctions[%id] @ "(\t";
+		echo("exc done: " @ %obj.excTypes[%f] SPC %evalString);
 		for (%a = 1; %a < getWordCount(%field); %a++)
 		{
 			%evalString = %evalString @ ", \"" @ getWord(%field, %a) @ "\"";
@@ -140,6 +143,7 @@ function brickFinder::continueSearch(%obj)
 			%change = false;
 			for (%et = 0; %et < %obj.numExcTypes; %et++)
 			{
+				echo("exc" SPC getField(%obj.excTypes[%et], 0) @ %sb @ getField(%obj.excTypes[%et], 1));
 				if (eval(getField(%obj.excTypes[%et], 0) @ %sb @ getField(%obj.excTypes[%et], 1)))
 				{
 					%obj.justFoundBricks.remove(%sb);
