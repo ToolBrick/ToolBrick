@@ -292,35 +292,55 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 		%newFilename = filePath(%fileName) @ "/" @ %newName @ ".nsf";
 		echo(%newFilename);
 		%curLine = 0;
+		%atMarkers = 0;
 		while (!%file.isEOF())
 		{	
 			%line = %file.readLine();
 			%lines[%curLine] = %line;
-			if (getSubStr(%line, 0, 2) !$= "+-" && %atbricks && strstr(%line, "\"") > 0)
+			if (%atMarkers)
 			{
-				%qspot = strstr(%line, "\"");
-				%datablock = getSubStr(%line, 0, %qspot);
-				if (!$uinametablecreated)
-					createUINameTable();
-				%datablock = $uiNameTable[%datablock];
-				if (!isObject(%datablock))
-					continue;
-				%posLine = getSubStr(%line, %qspot + 2, strLen(%line) - %qspot);
-				echo("line" SPC %line);
-				%curBrick = %obj.addBrick
-				(
-					%datablock,
-					getWords(%posLine, 0, 2),
-					getWord(%posLine, 3),
-					getWord(%posLine, 4) + 1,
-					getWord(%posLine, 5) ,
-					getWord(%posLine, 6),
-					getWord(%posLine, 7),
-					getWord(%posLine, 8),
-					getWord(%posLine, 9),
-					getWord(%posLine, 10),
-					getWord(%posLine, 11)
-				);
+				//name position primary secondary
+				%obj.markers[getField(%line, 0)] = new ScriptObject()
+				{
+					class = "vblMarker";
+					name = getField(%line, 0);
+					position = getField(%line, 1);
+					primary = getFIeld(%line, 2);
+					secondary = getField(%line, 3);
+					vbl = %obj;
+				};
+				%obj.markers.add(%obj.markers[getField(%line, 0)]);
+			}
+			else if (getSubStr(%line, 0, 2) !$= "+-" && %atbricks && strstr(%line, "\"") > 0)
+			{
+				if (getSubStr(%line, 0, 1) $= "\t")
+					%atMarkers = true;
+				else
+				{
+					%qspot = strstr(%line, "\"");
+					%datablock = getSubStr(%line, 0, %qspot);
+					if (!$uinametablecreated)
+						createUINameTable();
+					%datablock = $uiNameTable[%datablock];
+					if (!isObject(%datablock))
+						continue;
+					%posLine = getSubStr(%line, %qspot + 2, strLen(%line) - %qspot);
+					echo("line" SPC %line);
+					%curBrick = %obj.addBrick
+					(
+						%datablock,
+						getWords(%posLine, 0, 2),
+						getWord(%posLine, 3),
+						getWord(%posLine, 4) + 1,
+						getWord(%posLine, 5) ,
+						getWord(%posLine, 6),
+						getWord(%posLine, 7),
+						getWord(%posLine, 8),
+						getWord(%posLine, 9),
+						getWord(%posLine, 10),
+						getWord(%posLine, 11)
+					);
+				}
 			}
 			else if (getSubStr(%line, 0, 2) $= "+-" && %atbricks)// && strstr(%line, "\"") > 0)
 			{
@@ -398,7 +418,7 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 					%obj.cs_load(%addType, %curBrick, %addData, %addInfo, %addArgs, %line);
 			}
 			if (!%atbricks && getWordCount(%line) == 4)
-			{
+			{as
 				$pref::brickColors[$pref::brickColors::num] = %line;
 				$pref::brickColors::num++;
 			}
@@ -459,6 +479,22 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 				%obj.cs_save(%csName, %brickNum, %file);
 		}
 	}
+	
+		//name position primary secondary
+	for (%i = 0; %i < %obj.numMarkers; %i++)
+	{
+		%obj.markers[getField(%line, 0)] = new ScriptObject()
+		{
+			class = "vblMarker";
+			name = getField(%line, 0);
+			position = getField(%line, 1);
+			primary = getFIeld(%line, 2);
+			secondary = getField(%line, 3);
+			vbl = %obj;
+		};
+	}
+	
+	%obj.markers.add(%obj.markers[getField(%line, 0)]);
 	%file.close();
 	%file.delete();
 }
@@ -925,13 +961,17 @@ function virtualBrickList::alignSouthOf(%obj, %other)
 {
 	%obj.realign(2 SPC %other.getFace(0));
 }
-function virtaulBrickList::alignWestOf(%obj, %other)
+function virtualBrickList::alignWestOf(%obj, %other)
 {
 	%obj.realign(3 SPC %other.getFace(1));
 }
 function virtualBrickList::alignTopOf(%obj, %other)
 {
 	%obj.realign(4 SPC %other.getFace(5));
+	%obj.realign(5 SPC %other.getFace(4));
+}
+function virtualBrickList::alignBottomOf(%obj, %other)
+{
 	%obj.realign(5 SPC %other.getFace(4));
 }
 
@@ -1355,6 +1395,16 @@ function virtualBrickList::removeMarker(%obj, %name)
 		%obj.markers[%name].delete();
 		%obj.markers[%name] = "";
 	}
+}
+
+function virtualBrickList::getMarkerPrimary(%obj, %name)
+{
+	return %obj.markers[%name].primary;
+}
+
+function virtualBrickList::getMarkerSecondary(%obj, %name)
+{
+	return %obj.markers[%name].secondary;
 }
 
 function vblMarker::shift(%obj, %dis)
