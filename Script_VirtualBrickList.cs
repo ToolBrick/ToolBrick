@@ -418,7 +418,7 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 					%obj.cs_load(%addType, %curBrick, %addData, %addInfo, %addArgs, %line);
 			}
 			if (!%atbricks && getWordCount(%line) == 4)
-			{as
+			{
 				$pref::brickColors[$pref::brickColors::num] = %line;
 				$pref::brickColors::num++;
 			}
@@ -481,17 +481,11 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 	}
 	
 		//name position primary secondary
-	for (%i = 0; %i < %obj.numMarkers; %i++)
+	%file.writeLIne("\tMarkers");
+	for (%i = 0; %i < %obj.markers.getCount(); %i++)
 	{
-		%obj.markers[getField(%line, 0)] = new ScriptObject()
-		{
-			class = "vblMarker";
-			name = getField(%line, 0);
-			position = getField(%line, 1);
-			primary = getFIeld(%line, 2);
-			secondary = getField(%line, 3);
-			vbl = %obj;
-		};
+		%marker = %obj.markers.getObject(%i);
+		%file.writeLine(%marker.name TAB %marker.position TAB %marker.primary TAB %marker.secondary);
 	}
 	
 	%obj.markers.add(%obj.markers[getField(%line, 0)]);
@@ -779,6 +773,31 @@ function virtualBrickList::addRealBrick(%obj, %b)
 				%csName = $custSaves[%i, "name"];
 				%obj.cs_addReal(%csName, %num, %b);
 			}
+}
+
+function virtualBrickList::addRealBuild(%obj, %brick, %incStr, %excStr)
+{
+	if (%incStr $= "")
+		%incStr = "all";
+	%obj.bf = new ScriptObject()
+	{
+		class = "BrickFinder";
+	};
+	
+	%obj.bf.setOnSelectCommand(%obj @ ".onFoundRealBrick(%sb);");
+	%obj.bf.setFinishCommand(%obj @ ".onFinishAddingBuild(" @ %obj.bf @ ");");
+	
+	%obj.bf.search(%brick, "chain", "all", "", 1);
+}
+
+function virtualBrickList::onFoundRealBrick(%obj, %sb)
+{
+	%obj.addRealBrick(%sb);
+}
+
+function virtualBrickList::onFinishAddingBuild(%obj, %bf)
+{
+	%obj.bf.delete();
 }
 
 function virtualBrickList::importBuild(%obj, %base, %getDown, %flash)
@@ -1354,7 +1373,11 @@ function virtualBrickList::getTopFace(%obj)
 //markers
 function virtualBrickList::addMarker(%obj, %name, %point, %pDir, %sDir)
 {
-	if (%pDir < 0 || %pDir > 5)
+	if (isObject(%obj.markers[%name]))
+	{
+		error("ERROR: virtualBrickList::addMarker - marker name already used");
+	}
+	else if (%pDir < 0 || %pDir > 5)
 	{
 		error("ERROR: virtualBrickList::addMarker - primary direction is incorrect");
 	}
@@ -1376,6 +1399,7 @@ function virtualBrickList::addMarker(%obj, %name, %point, %pDir, %sDir)
 			%mark = new ScriptObject()
 			{
 				class = "vblMarker";
+				name = %name;
 				position = %point;
 				primary = %pDir;
 				secondary = %sDir;
