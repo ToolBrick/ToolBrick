@@ -491,7 +491,6 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 		%file.writeLine(%marker.name TAB %marker.position TAB %marker.primary TAB %marker.secondary);
 	}
 	
-	//%obj.markers.add(%obj.markers[getField(%line, 0)]);
 	%file.close();
 	%file.delete();
 }
