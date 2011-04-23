@@ -45,6 +45,7 @@ function addBFType(%name, %funcName)
 //This method just sets up, actual searching is in another method so we can easily stretch out the search
 function brickFinder::search(%obj, %base, %findMethod, %includeTypes, %excludeTypes, %searchFromExcluded)
 {
+	echo("args:" SPC %base SPC ":" SPC %findMethod SPC ":" SPC %includeTypes SPC ":" SPC %excludeTypes SPC ":" SPC %searchFromExcluded);
 	%obj.cleanup();
 	if (!%base.getClassName() $= "fxDTSBrick")
 		return;
@@ -167,6 +168,8 @@ function brickFinder::continueSearch(%obj)
 						%obj.selectBricks.add(%sb);
 						if (%obj.onSelectCommand !$= "")
 							eval(%obj.onSelectCommand);
+						
+						%obj.onSelect(%sb);
 						%change = true;
 					}
 					%obj.brickGroups.getObject(%it).add(%sb);
@@ -191,8 +194,21 @@ function brickFinder::continueSearch(%obj)
 		//check here everytime and take a break if needed
 		//prepare for the next search
 	}
-	echo(%now SPC %startTime);
+	
+	//only get here when finished
+	//echo(%now SPC %startTime);
 	eval(%obj.finishCommand);
+	%obj.onFinish(%obj.foundBricks);
+}
+
+function brickFinder::onSelect(%obj, %brick)
+{
+	echo("tarasd");
+}
+
+function brickFinder::onFinish(%obj, %brick)
+{
+	
 }
 
 function brickFinder::setFinishCommand(%obj, %command)
@@ -227,6 +243,16 @@ function brickFinder::cleanup(%obj)
 		%obj.foundBricks.delete();
 	if (isObject(%obj.justFoundBricks))
 		%obj.justFoundBricks.delete();
+}
+
+function newBrickFinder(%type)
+{
+	//the type is unnecessary but meant to make it easier for packaged methods to tell whether they should activate or not
+	return new ScriptObject()
+	{
+		class = "BrickFinder";
+		type = %type;
+	};
 }
 
 function testBF(%off, %client)

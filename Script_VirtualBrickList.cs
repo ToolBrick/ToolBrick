@@ -300,16 +300,17 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 			if (%atMarkers)
 			{
 				//name position primary secondary
-				%obj.markers[getField(%line, 0)] = new ScriptObject()
-				{
-					class = "vblMarker";
-					name = getField(%line, 0);
-					position = getField(%line, 1);
-					primary = getFIeld(%line, 2);
-					secondary = getField(%line, 3);
-					vbl = %obj;
-				};
-				%obj.markers.add(%obj.markers[getField(%line, 0)]);
+				%obj.addMarker(getField(%line, 0), getField(%line, 1), getField(%line, 2), getField(%line, 3));
+				//%obj.markers[getField(%line, 0)] = new ScriptObject()
+				//{
+				//	class = "vblMarker";
+				//	name = getField(%line, 0);
+				//	position = getField(%line, 1);
+				//	primary = getFIeld(%line, 2);
+				//	secondary = getField(%line, 3);
+				//	vbl = %obj;
+				//};
+				//%obj.markers.add(%obj.markers[getField(%line, 0)]);
 			}
 			else if (getSubStr(%line, 0, 2) !$= "+-" && %atbricks && strstr(%line, "\"") > 0)
 			{
@@ -440,11 +441,13 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 	%file.writeLine("1");
 	//%file.writeLine("This file has been exported from virtualBrickList.");
 	%file.writeLine("");
-	for (%i = 0; %i < $pref::brickColors::num; %i++)
-	{
-		%file.writeLine($pref::brickColors[%i]);
-	}
+	//for (%i = 0; %i < $pref::brickColors::num; %i++)
+	//{
+	//	%file.writeLine($pref::brickColors[%i]);
+	//}
 	//export colors here
+	for (%i = 0; %i < 64; %i++)
+		%file.writeLine(getColorIDTable(%i));
 	%file.writeLine("Linecount" SPC %obj.numBricks);
 	for (%brickNum = 0; %brickNum < %obj.numBricks; %brickNum++)
 	{
@@ -481,14 +484,14 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 	}
 	
 		//name position primary secondary
-	%file.writeLIne("\tMarkers");
+	%file.writeLine("\tMarkers");
 	for (%i = 0; %i < %obj.markers.getCount(); %i++)
 	{
 		%marker = %obj.markers.getObject(%i);
 		%file.writeLine(%marker.name TAB %marker.position TAB %marker.primary TAB %marker.secondary);
 	}
 	
-	%obj.markers.add(%obj.markers[getField(%line, 0)]);
+	//%obj.markers.add(%obj.markers[getField(%line, 0)]);
 	%file.close();
 	%file.delete();
 }
@@ -1289,6 +1292,11 @@ function virtualBrickList::resetSize(%obj)
 	%obj.minZ = "";
 }
 
+function virtualBrickList::getCount(%obj)
+{
+	return %obj.numBricks;
+}
+
 function virtualBrickList::getNorthFace(%obj)
 {
 	return %obj.maxY;
@@ -1404,9 +1412,11 @@ function virtualBrickList::addMarker(%obj, %name, %point, %pDir, %sDir)
 				primary = %pDir;
 				secondary = %sDir;
 				vbl = %obj;
+				name = %name;
 			};
 			%obj.markers[%name] = %mark;
 			%obj.markers.add(%mark);
+			return %mark;
 		}
 	}
 }
@@ -1478,6 +1488,7 @@ function vblMarker::rotateCW(%obj, %times)
 	}
 }
 
+//align the markers against eachother
 function vblMarker::alignWith(%obj, %marker)
 {
 	if (%obj.primary < 4 && %marker.primary < 4)
@@ -1495,6 +1506,35 @@ function vblMarker::alignWith(%obj, %marker)
 	{
 		//only have to align the primary
 		%rotNeeded = %marker.secondary + 2;
+		%rotNeeded %= 4;
+		if (%rotNeeded < %obj.secondary)
+			%rotNeeded += 4;
+		%rot = %rotNeeded - %obj.secondary;
+		%obj.vbl.rotateBricksCW(%rot);
+		%obj.vbl.shiftbricks(VectorSub(%marker.position, %obj.position));
+	}
+	else
+	{
+		error("ERROR: vblMarker::alignWith - directions don't match up");
+	}
+}
+
+//align the markers on top of eachother
+function vblMarker::alignOnto(%obj, %marker)
+{
+	if (%obj.primary < 4 && %marker.primary < 4)
+	{
+		//only have to align the primary
+		%rotNeeded %= 4;
+		if (%rotNeeded < %obj.primary)
+			%rotNeeded += 4;
+		%rot = %rotNeeded - %obj.primary;
+		%obj.vbl.rotateBricksCW(%rot);
+		%obj.vbl.shiftbricks(VectorSub(%marker.position, %obj.position));
+	}
+	else if (%obj.primary > 3 && %marker.primary > 3 && (%obj.primary != %marker.primary))
+	{
+		//only have to align the primary
 		%rotNeeded %= 4;
 		if (%rotNeeded < %obj.secondary)
 			%rotNeeded += 4;
