@@ -299,6 +299,7 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 			%lines[%curLine] = %line;
 			if (%atMarkers)
 			{
+				echo("at markers");
 				//name position primary secondary
 				%obj.addMarker(getField(%line, 0), getField(%line, 1), getField(%line, 2), getField(%line, 3));
 				//%obj.markers[getField(%line, 0)] = new ScriptObject()
@@ -418,10 +419,9 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 				else if ($custSavePrefs[%addType])
 					%obj.cs_load(%addType, %curBrick, %addData, %addInfo, %addArgs, %line);
 			}
-			if (!%atbricks && getWordCount(%line) == 4)
+			else if (%atBricks && %line $= "\tMarkers")
 			{
-				$pref::brickColors[$pref::brickColors::num] = %line;
-				$pref::brickColors::num++;
+				%atMarkers = true;
 			}
 			if (getWord(%line, 0) $= "Linecount" && getWordCount(%line) == 2)
 				%atbricks = true;
@@ -484,11 +484,14 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 	}
 	
 		//name position primary secondary
-	%file.writeLine("\tMarkers");
-	for (%i = 0; %i < %obj.markers.getCount(); %i++)
+	if (%obj.markers.getCount())
 	{
-		%marker = %obj.markers.getObject(%i);
-		%file.writeLine(%marker.name TAB %marker.position TAB %marker.primary TAB %marker.secondary);
+		%file.writeLine("\tMarkers");
+		for (%i = 0; %i < %obj.markers.getCount(); %i++)
+		{
+			%marker = %obj.markers.getObject(%i);
+			%file.writeLine(%marker.name TAB %marker.position TAB %marker.primary TAB %marker.secondary);
+		}
 	}
 	
 	%file.close();
