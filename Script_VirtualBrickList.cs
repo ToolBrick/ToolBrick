@@ -635,9 +635,9 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 	}
 	else if ($Server::Lan)
 	{
-		BrickGroup_LAN.add(%b);
-		if (isObject(BrickGroup_LAN.client)) %b.client = BrickGroup_LAN.client;
-		%b.stackBL_ID = BrickGroup_LAN.bl_id;
+		BrickGroup_999999.add(%b);
+		if (isObject(BrickGroup_999999.client)) %b.client = BrickGroup_999999.client;
+		%b.stackBL_ID = BrickGroup_999999.bl_id;
 	}
 	else
 	{
@@ -1461,6 +1461,11 @@ function virtualBrickList::getMarkerPrimary(%obj, %name)
 function virtualBrickList::getMarkerSecondary(%obj, %name)
 {
 	return %obj.markers[%name].secondary;
+}
+
+function virtualBrickList::getMarkerPosition(%obj, %name)
+{
+	return %obj.markers[%name].position;
 }
 
 function vblMarker::shift(%obj, %dis)
