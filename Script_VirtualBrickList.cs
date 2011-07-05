@@ -506,13 +506,27 @@ function virtualBrickList::clearList(%obj)
 
 function virtualBrickList::createBricks(%obj, %client, %overideClient)
 {
+	%factory = new ScriptObject()
+	{
+		class = "BrickFactory";
+		returnBrickSet = %obj.returnBrickSet;
+	};
+	%ret = %factory.createBricks(%obj);
+	%factory.delete();
+	return true;
+}
+
+function BrickFactory::createBricks(%obj, %vbl, %client, %overideClient)
+{
 	if (%client $= "")
 		%client = 0;
 	if (%obj.returnBrickSet)
 		%set = newRBL();
-	for (%i = 0; %i < %obj.numBricks; %i++)
+	for (%i = 0; %i < %vbl.numBricks; %i++)
 	{
-		%b = %obj.createBrick(%i, %client, %overideClient);
+		%b = %vbl.createBrick(%i, %client, %overideClient);
+		if (isObject(%b))
+			%obj.onCreateBrick(%b);
 		if (%obj.returnBrickSet)
 			%set.addBrick(%b);
 	}
@@ -520,6 +534,12 @@ function virtualBrickList::createBricks(%obj, %client, %overideClient)
 		return %set;
 	
 	return true;
+}
+
+function BrickFactory::onCreateBrick(%obj, %brick)
+{
+	//stub to be overridden
+	echo("stub brick: " @ %brick);
 }
 
 function virtualBrickList::asyncCreateBricks(%obj, %client, %overideClient, %callback, %pass, %set)
