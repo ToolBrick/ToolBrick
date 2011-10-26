@@ -567,7 +567,7 @@ function virtualBrickList::asyncCreateBricks(%obj, %client, %overideClient, %cal
 	}
 	else
 	{
-		echo("call the callback");
+		//echo("call the callback");
 		call(%callback, %obj, %set);
 	}
 }
@@ -590,6 +590,7 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 	%raycasting = %obj.isRaycasting(%i);
 	%collision = %obj.isColliding(%i);
 	%rendering = %obj.isRendering(%i);
+	$Server_LoadFileObj = 1;
 	//get all the properties so badspot's code can work
 	%trans = %pos;
 	switch(%angId)
@@ -617,13 +618,13 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 	};
 	if (!isObject(%b))
 	{
+		///TODO: Evaluate whether this should be reached and change response
 		echo("Brick not created!" SPC %db);
+		$Server_LoadFileObj = "";
 		return;
 	}
-	if(isObject(DoorSO) && DoorSO.getIDFromDatablockBrick(%db) > -1)
-	{
-		%brick.noDefaultDoorEvents = 1;
-	}
+	
+	
 	%b.setRaycasting(%raycasting);
 	%b.setColliding(%collision);
 	%b.setRendering(%rendering);
@@ -655,6 +656,7 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 	%b.setTrusted(1);
 	%b.setTransform(%trans);
 	%err = %b.plant();
+	$Server_LoadFileObj = "";
 	//plant() returns an integer:
 	//0 = plant successful
 	//1 = blocked by brick
@@ -667,6 +669,7 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 		//error("ERROR: loadBricks() - Brick could not be placed!");
 		%failureCount++;
 		%b.delete();
+		return 0; ///TODO: Reevaluate flow of code
 	}
 	if (isObject(%obj.virBricks[%i, "Emitter"]))
 	{
@@ -685,7 +688,6 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 	}
 	if (isObject(%obj.virBricks[%i, "Item"]))
 	{
-		echo("add item");
 		%b.setItem(%obj.virBricks[%i, "Item"]);
 		%b.setItemDirection(%obj.virBricks[%i, "Item", 0]);
 		%b.setItemPosition(%obj.virBricks[%i, "Item", 1]);
