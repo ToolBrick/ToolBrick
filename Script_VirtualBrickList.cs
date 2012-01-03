@@ -287,10 +287,6 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 	//{
 		%file = new FileObject();
 		%file.openForRead(%fileName);
-		if (%newName $= "")
-			%newName = getSubStr(fileName(%fileName), 0, strstr(fileName(%fileName), ".bls"));
-		%newFilename = filePath(%fileName) @ "/" @ %newName @ ".nsf";
-		echo(%newFilename);
 		%curLine = 0;
 		%atMarkers = 0;
 		while (!%file.isEOF())
