@@ -295,7 +295,6 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 			%lines[%curLine] = %line;
 			if (%atMarkers)
 			{
-				echo("at markers");
 				//name position primary secondary
 				%obj.addMarker(getField(%line, 0), getField(%line, 1), getField(%line, 2), getField(%line, 3));
 				//%obj.markers[getField(%line, 0)] = new ScriptObject()
@@ -323,7 +322,6 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 					if (!isObject(%datablock))
 						continue;
 					%posLine = getSubStr(%line, %qspot + 2, strLen(%line) - %qspot);
-					echo("line" SPC %line);
 					%curBrick = %obj.addBrick
 					(
 						%datablock,
@@ -357,7 +355,6 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 						else
 						{
 							%addData = %word;
-							echo(%addData SPC "----" SPC %addInfo SPC "----");
 							if (strLen(%addInfo) - (strLen(%addData) + 2) >= 0)
 								%addArgs = getSubStr(%addInfo, strLen(%addData) + 2, strLen(%addInfo) - (strLen(%addData) + 2));//
 							else
