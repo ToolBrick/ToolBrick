@@ -109,23 +109,19 @@ function virtualBrickList::cs_save_EVENT(%obj, %num, %file)
 		for (%op = 1; %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op] !$= ""; %op++)
 			%outputParameters = %outputParameters @ %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op] @ "\t";
 		%file.writeLine("+-EVENT" TAB
-		%obj.virBricks[%num, "EVENT", "Delay", %i] @ "\t" @
-		%obj.virBricks[%num, "EVENT", "Enabled", %i] @ "\t" @
-		%obj.virBricks[%num, "EVENT", "Input", %i] @ "\t" @
-		%obj.virBricks[%num, "EVENT", "InputIdx", %i] @ "\t" @
-		%obj.virBricks[%num, "EVENT", "NT", %i] @ "\t" @
-		%obj.virBricks[%num, "EVENT", "Output", %i] @ "\t" @
-		%obj.virBricks[%num, "EVENT", "OutputAppendClient", %i] @ "\t" @
-		%obj.virBricks[%num, "EVENT", "OutputIdx", %i] @ "\t" @
-		%obj.virBricks[%num, "EVENT", "Target", %i] @ "\t" @
-		%obj.virBricks[%num, "EVENT", "TargetIdx", %i] @ "\t" @
+		%i TAB
+		%obj.virBricks[%num, "EVENT", "Enabled", %i] TAB
+		%obj.virBricks[%num, "EVENT", "Input", %i] TAB
+		%obj.virBricks[%num, "EVENT", "Delay", %i] TAB
+		%obj.virBricks[%num, "EVENT", "Target", %i] TAB
+		%obj.virBricks[%num, "EVENT", "NT", %i] TAB
+		%obj.virBricks[%num, "EVENT", "Output", %i] TAB
 		%outputParameters);
 	}
 }
 
 function virtualBrickList::cs_load_EVENT(%obj, %num, %addData, %addInfo, %addArgs, %line)
 {
-echo("called" SPC %num);
 	%obj.virBricks[%num, "EVENT"]++;
 	%i = %obj.virBricks[%num, "EVENT"] - 1;
 	%obj.virBricks[%num, "EVENT", "Delay", %i] = getField(%line, 1);
