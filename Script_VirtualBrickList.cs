@@ -329,7 +329,7 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 						getWord(%posLine, 3),
 						getWord(%posLine, 4) + 1,
 						getWord(%posLine, 5) ,
-						getWord(%posLine, 6),
+						$printNameTable[getWord(%posLine, 6)],
 						getWord(%posLine, 7),
 						getWord(%posLine, 8),
 						getWord(%posLine, 9),
@@ -449,8 +449,7 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 		%angleid = %obj.getAngleId(%brickNum);
 		%isBaseplate = %obj.isBP(%brickNum);
 		%color = %obj.getColorId(%brickNum) + 1;
-		if (!%print) %print = "";
-		else %print = getPrintTexture(%obj.getPrint(%brickNum));
+		%print = %obj.getPrintName(%brickNum);
 		%colorfx = %obj.getColorFx(%brickNum);
 		%shapefx = %obj.getShapeFx(%brickNum);
 		%raycasting = %obj.isRaycasting(%brickNum);
@@ -1585,4 +1584,21 @@ function vblMarker::rotateCCW(%obj, %times)
 }
 
 };
+
+//The following function was blatantly modified from the duplicator
+function VirtualBrickList::getPrintName(%obj, %num)
+{
+	if(%obj.getDataBlock(%num).subCategory $= "Prints")
+	{
+		%texture = getPrintTexture(%obj.virBricks[%num, 5]);
+		%path = filePath(%texture);
+		%underscorePos = strPos(%path, "_");
+		%name = getSubStr(%path, %underscorePos + 1, strPos(%path, "_", 14) - 14) @ "/" @ fileBase(%texture);
+		if($printNameTable[%name] !$= "")
+			return %name;
+	}
+	
+	return "";
+}
+
 activatePackage(vblPackage);
