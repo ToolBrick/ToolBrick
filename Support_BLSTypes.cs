@@ -125,8 +125,16 @@ function virtualBrickList::cs_load_EVENT(%obj, %num, %addData, %addInfo, %addArg
 	//unnamed brick loading:
 	//+-EVENT^0^1^onActivate^0^Player^^AddVelocity^0 0 50	^^
 	
+	//another brick:
+	//+-EVENT^0^1^onPlayerTouch^0^Client^^CenterPrint^hello derp^2^^
+	
+	//another, same as above but delay 34:
+	//+-EVENT^0^1^onPlayerTouch^34^Client^^CenterPrint^hello derp^2^^
+	
+	//should probably use getField(%line, 1) to determine this but whatever
 	%obj.virBricks[%num, "EVENT"]++;
 	%i = %obj.virBricks[%num, "EVENT"] - 1;
+	
 	//$InputEvent_TargetList[class, eventId] - list of ReadableName -> ClassName for that event, separated by a space (this isn't needed I think)
 	//$InputEvent_Name[class, eventId]			 - name of input event
 	//$InputEvent_Count[class]							 - number of events registered for class
@@ -137,48 +145,30 @@ function virtualBrickList::cs_load_EVENT(%obj, %num, %addData, %addInfo, %addArg
 	//$OutputEvent_Name[class, eventId]						- name of output event id
 	//$OutputEvent_parameterList[class, eventId]	- list of parameters; each field is a different arg, format [type limit]; 
 																								//more on this list on bl forums (space guy's topic), this isn't needed either
+																								//we can use this to autodetect when to rotate (vector data type)
 	
-	%obj.virBricks[%num, "EVENT", "Delay", %i] = getField(%line, 1); //yes
 	%obj.virBricks[%num, "EVENT", "Enabled", %i] = getField(%line, 2); //yes
+	%obj.virBricks[%num, "EVENT", "Delay", %i] = getField(%line, 4); //yes
 	%obj.virBricks[%num, "EVENT", "Input", %i] = getField(%line, 3); //yes
-	
-	//%obj.virBricks[%num, "EVENT", "InputIdx", %i] = getField(%line, 4); //you should look this up in a table
-	%inputClass = "fxDtsBrick";
-	//find InputIdx
-	for(%t = 0; %t < $InputEvent_Count[%inputClass]; %t++)
-	{
-		if($InputEvent_Name[%inputClass, %t] == getField(%line, 3))
-		{
-			%obj.virBricks[%num, "EVENT", "InputIdx", %i] = %t;
-			break;
-		}
-	}
+		
+	%obj.virBricks[%num, "EVENT", "InputIdx", %i] = inputEvent_GetInputEventIdx(%obj.virBricks[%num, "EVENT", "Input", %i]);
 
-	%obj.virBricks[%num, "EVENT", "TargetIdx", %i] = getField(%line, 4); //i *think* this is field 4
 	%obj.virBricks[%num, "EVENT", "Target", %i] = getField(%line, 5); //should be field 5
-	%obj.virBricks[%num, "EVENT", "NT", %i] = getField(%line, 6); //yes
+	%obj.virBricks[%num, "EVENT", "TargetIdx", %i] = inputEvent_GetTargetIndex("fxDtsBrick", %obj.virBricks[%num, "EVENT", "InputIdx", %i], %obj.virBricks[%num, "EVENT", "Target", %i]);
+
+	%obj.virBricks[%num, "EVENT", "NT", %i] = getField(%line, 6); //its possible this should be stripping the underscore
 	
 	%obj.virBricks[%num, "EVENT", "Output", %i] = getField(%line, 7); //should be field 7
 
-	//find OutputIdx
-	%outputClass = %obj.virBricks[%num, "EVENT", "Target", %i]; //output class is the brick we've targeted
-	for(%t = 0; %t < $OutputEvent_Count[%outputClass]; %t++)
-	{
-		if($OutputEvent_Name[%outputClass, %t] == getField(%line, 7))
-		{
-			%obj.virBricks[%num, "EVENT", "OutputIdx", %i] = %t;
-			break;
-		}
-	}
+	%outputClass = inputEvent_GetTargetClass("fxDtsBrick", %obj.virBricks[%num, "EVENT", "InputIdx", %i], %obj.virBricks[%num, "EVENT", "TargetIdx", %i]);
+	%obj.virBricks[%num, "EVENT", "OutputIdx", %i] = outputEvent_GetOutputEventIdx(%outputClass, %obj.virBricks[%num, "EVENT", "Output", %i]);
 	
 	//look up in a table: $OutputEvent_AppendClient[class, outputIdx];
 	%obj.virBricks[%num, "EVENT", "OutputAppendClient", %i] = $OutputEvent_AppendClient[%outputClass, %obj.virBricks[%num, "EVENT", "OutputIdx", %i]];
 	
+	//this works
 	for (%op = 8; %op < getFieldCount(%line); %op++) //starts in field 8
 		%obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op - 7] = getField(%line, %op);
-		
-	//need to apply all these values to the gui somehow
-	//probably using brick.clearEvents() and then brick.addEvent(); ?
 }
 
 addCustSave("NTOBJECTNAME");
