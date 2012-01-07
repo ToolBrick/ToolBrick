@@ -1,0 +1,10 @@
+exec("./Script_BrickCoordinates.cs");
+exec("./Script_VirtualBrickList.cs");
+exec("./Script_RealBrickList.cs");
+exec("./Script_BrickManipulation.cs");
+exec("./Support_BLSTypes.cs");
+exec("./Script_BrickFInder.cs");
+exec("./Support_Types.cs");
+exec("./Script_BlockManager3d.cs");
+exec("./Script_BlockFiller.cs");
+exec("./Script_HouseGenerator.cs");
