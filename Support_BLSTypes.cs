@@ -181,19 +181,6 @@ function virtualBrickList::cs_load_EVENT(%obj, %num, %addData, %addInfo, %addArg
 	//probably using brick.clearEvents() and then brick.addEvent(); ?
 }
 
-function eventLoadTest()
-{
-	if(isObject($e))
-		$e.delete();
-	
-	$e = new ScriptObject()
-	{
-		class = "VirtualBrickList";
-	};
-	$e.loadBLSFile("saves/Bedroom/events test.bls");
-}
-
-
 addCustSave("NTOBJECTNAME");
 function virtualBrickList::cs_addReal_NTOBJECTNAME(%obj, %num, %brick)
 {
