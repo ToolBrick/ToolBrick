@@ -19,15 +19,11 @@ function virtualBrickList::cs_addReal_EVENT(%obj, %num, %brick)
 			%obj.virBricks[%num, "EVENT", "Delay", %i] = %brick.eventDelay[%i];
 			%obj.virBricks[%num, "EVENT", "Enabled", %i] = %brick.eventEnabled[%i];
 			%obj.virBricks[%num, "EVENT", "Input", %i] = %brick.eventInput[%i];
-			%obj.virBricks[%num, "EVENT", "InputIdx", %i] = %brick.eventInputIdx[%i];
 			%obj.virBricks[%num, "EVENT", "NT", %i] = %brick.eventNT[%i];
 			%obj.virBricks[%num, "EVENT", "Output", %i] = %brick.eventOutput[%i];
-			%obj.virBricks[%num, "EVENT", "OutputAppendClient", %i] = %brick.eventOutputAppendClient[%i];
-			%obj.virBricks[%num, "EVENT", "OutputIdx", %i] = %brick.eventOutputIdx[%i];
-			for (%op = 1; %brick.eventOutputParameter[%i, %op] !$= ""; %op++)
+			for (%op = 1; %op <= 4; %op++)
 				%obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op] = %brick.eventOutputParameter[%i, %op];
 			%obj.virBricks[%num, "EVENT", "Target", %i] = %brick.eventTarget[%i];
-			%obj.virBricks[%num, "EVENT", "TargetIdx", %i] = %brick.eventTargetIdx[%i];
 		}
 	}
 	else %obj.virBricks[%num, "EVENT"] = 0;
@@ -45,17 +41,24 @@ function virtualBrickList::cs_create_EVENT(%obj, %num, %brick)
 		%brick.eventDelay[%i] = %obj.virBricks[%num, "EVENT", "Delay", %i];
 		%brick.eventEnabled[%i] = %obj.virBricks[%num, "EVENT", "Enabled", %i];
 		%brick.eventInput[%i] = %obj.virBricks[%num, "EVENT", "Input", %i];
-		%brick.eventInputIdx[%i] = %obj.virBricks[%num, "EVENT", "InputIdx", %i];
+		%brick.eventInputIdx[%i] = inputEvent_GetInputEventIdx(%brick.eventInput[%i]);
 		//%brick.eventInputIdx[%i] = inputEvent_GetInputEventIdx(%brick.eventInput);
+		
+		///TODO: make it possible to toggle the changing of the name
 		%brick.eventNT[%i] = %obj.virBricks[%num, "EVENT", "NT", %i] @ "_" @ %obj.copyNum;
-		%brick.eventOutput[%i] = %obj.virBricks[%num, "EVENT", "Output", %i];
-		%brick.eventOutputAppendClient[%i] = %obj.virBricks[%num, "EVENT", "OutputAppendClient", %i];
-		%brick.eventOutputIdx[%i] = %obj.virBricks[%num, "EVENT", "OutputIdx", %i];
-		//%brick.eventOutputIdx = outputEvent_GetOutputEventIdx(%brick.eventOutput);
-		for (%op = 1; %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op] !$= ""; %op++)
-			%brick.eventOutputParameter[%i, %op] = %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op];
+
 		%brick.eventTarget[%i] = %obj.virBricks[%num, "EVENT", "Target", %i];
-		%brick.eventTargetIdx[%i] = %obj.virBricks[%num, "EVENT", "TargetIdx", %i];
+		%brick.eventTargetIdx[%i] = inputEvent_GetTargetIndex("fxDTSBrick", %brick.eventInputIdx[%i], %brick.eventTarget[%i]);
+		
+		%outputClass = %brick.eventTargetIdx[%i] == -1 ? "fxDtsBrick" : 
+			inputEvent_GetTargetClass("fxDtsBrick", %brick.eventInputIdx[%i], %brick.eventTargetIdx[%i]);
+		
+		%brick.eventOutput[%i] = %obj.virBricks[%num, "EVENT", "Output", %i];
+		%brick.eventOutputIdx[%i] = outputEvent_GetOutputEventIdx(%outputClass, %brick.eventOutput[%i]);
+		%brick.eventOutputAppendClient[%i] = $OutputEvent_AppendClient[%outputClass, %newBrick.eventOutputIdx[%i]];
+		//%brick.eventOutputIdx = outputEvent_GetOutputEventIdx(%brick.eventOutput);
+		for (%op = 1; %op <= 4; %op++)
+			%brick.eventOutputParameter[%i, %op] = %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op];
 		%brick.numEvents = %obj.virBricks[%num, "EVENT"];
 	}
 }
@@ -79,7 +82,8 @@ function virtualBrickList::cs_rotateCW_Event(%obj, %num, %times)
 		if (%relayNum)
 		{
 			%relayNum += %times;
-			while (%relayNum > 4) %relayNum -= 4;
+			while (%relayNum > 4)
+				%relayNum -= 4;
 			%obj.virBricks[%num, "EVENT", "Output", %i] = %relayNames[%relayNum];
 			%obj.virBricks[%num, "EVENT", "OutputIdx", %i] = outputEvent_GetOutputEventIdx("fxDTSBrick", %relayNames[%relayNum]); //relays are fxdtsbrick stuff
 		}
@@ -106,8 +110,12 @@ function virtualBrickList::cs_save_EVENT(%obj, %num, %file)
 		%target = getWord(getField(%targets, %obj.virBricks[%num, "EVENT", "TargetIdx", %i]), 1);
 		%paraList = $Output["Event", "parameterList" @ %target, %obj.virBricks[%num, "EVENT", "OutputIdx", %i]];
 		%outputParameters = "";
-		for (%op = 1; %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op] !$= ""; %op++)
-			%outputParameters = %outputParameters @ %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op] @ "\t";
+		for (%op = 1; %op <= 4; %op++)
+		{
+			%outputParameters = %outputParameters @ %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op];
+			if (%op != 4)
+				%outputParameters = %outputParameters @ "\t";
+		}
 		%file.writeLine("+-EVENT" TAB
 		%i TAB
 		%obj.virBricks[%num, "EVENT", "Enabled", %i] TAB
@@ -122,20 +130,18 @@ function virtualBrickList::cs_save_EVENT(%obj, %num, %file)
 
 function virtualBrickList::cs_load_EVENT(%obj, %num, %addData, %addInfo, %addArgs, %line)
 {
+	//Increment event count
 	%obj.virBricks[%num, "EVENT"]++;
 	%i = %obj.virBricks[%num, "EVENT"] - 1;
-	%obj.virBricks[%num, "EVENT", "Delay", %i] = getField(%line, 1);
+	
 	%obj.virBricks[%num, "EVENT", "Enabled", %i] = getField(%line, 2);
 	%obj.virBricks[%num, "EVENT", "Input", %i] = getField(%line, 3);
-	%obj.virBricks[%num, "EVENT", "InputIdx", %i] = getField(%line, 4);
-	%obj.virBricks[%num, "EVENT", "NT", %i] = getField(%line, 5);
-	%obj.virBricks[%num, "EVENT", "Output", %i] = getField(%line, 6);
-	%obj.virBricks[%num, "EVENT", "OutputAppendClient", %i] = getField(%line, 7);
-	%obj.virBricks[%num, "EVENT", "OutputIdx", %i] = getField(%line, 8);
-	%obj.virBricks[%num, "EVENT", "Target", %i] = getField(%line, 9);
-	%obj.virBricks[%num, "EVENT", "TargetIdx", %i] = getField(%line, 10);
-	for (%op = 11; %op < getFieldCount(%line); %op++)
-		%obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op - 10] = getField(%line, %op);
+	%obj.virBricks[%num, "EVENT", "Delay", %i] = getField(%line, 4);
+	%obj.virBricks[%num, "EVENT", "Target", %i] = getField(%line, 5);
+	%obj.virBricks[%num, "EVENT", "NT", %i] = getField(%line, 6);
+	%obj.virBricks[%num, "EVENT", "Output", %i] = getField(%line, 7);
+	for (%op = 8; %op < 12; %op++)
+		%obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op - 7] = getField(%line, %op);
 }
 
 
