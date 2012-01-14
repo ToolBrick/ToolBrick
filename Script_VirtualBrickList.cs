@@ -503,7 +503,7 @@ function virtualBrickList::createBricks(%obj, %client, %overideClient)
 		class = "BrickFactory";
 		returnBrickSet = %obj.returnBrickSet;
 	};
-	%ret = %factory.createBricks(%obj);
+	%ret = %factory.createBricks(%obj, %client, %overideClient);
 	%factory.delete();
 	return true;
 }
