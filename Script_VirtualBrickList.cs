@@ -528,6 +528,52 @@ function BrickFactory::createBricks(%obj, %vbl, %client, %overideClient)
 	return true;
 }
 
+function BrickFactory::createBricksForBlid(%obj, %vbl, %blid)
+{
+	%client = findClientByBL_ID(%blid);
+	
+	%brickGroupName = "BrickGroup_" @ %blid;
+	if (!isObject(%brickGroupName))
+	{
+		new SimGroup(%brickGroupName);
+		%brickGroup = %brickGroupName.getId();
+		%brickGroup.name = "BL_ID:" SPC %blid;
+		mainBrickGroup.add(%brickGroup);
+	}
+	
+	if (%obj.returnBrickSet)
+		%set = newRBL();
+		
+	if (%client)
+		%obj.createBricks(%vbl, %client);
+	else
+	{
+		for (%i = 0; %i < %vbl.numBricks; %i++)
+		{
+			%b = %obj.createBasicBrick(%i);
+			
+			if (!isObject(%b))
+				continue;
+				
+			%b.stackBL_ID = %bl_id;
+			
+			if (isObject(%client))
+				%client.brickGroup.add(%b);
+
+			%b = %obj.standardPlantBrick(%b);
+			
+			%obj.onCreateBrick(%b);
+			if (%obj.returnBrickSet)
+				%set.addBrick(%b);
+		}
+	}
+	
+	if (%obj.returnBrickSet)
+		return %set;
+	
+	return true;
+}
+
 function BrickFactory::onCreateBrick(%obj, %brick)
 {
 	//stub to be overridden
@@ -564,7 +610,7 @@ function virtualBrickList::asyncCreateBricks(%obj, %client, %overideClient, %cal
 	}
 }
 
-function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
+function virtualBrickList::createGhostBrick(%obj, %i)
 {
 	%db = %obj.virBricks[%i, 0];
 	if (!isObject(%db))
@@ -582,7 +628,6 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 	%raycasting = %obj.isRaycasting(%i);
 	%collision = %obj.isColliding(%i);
 	%rendering = %obj.isRendering(%i);
-	$Server_LoadFileObj = 1;
 	//get all the properties so badspot's code can work
 	%trans = %pos;
 	switch(%angId)
@@ -597,6 +642,7 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 		%trans = %trans SPC " 0 0 -1" SPC $piOver2;
 	}
 	//echo("Creating brick ", %uiName SPC %db);
+	
 	%b = new fxDTSBrick()
 	{
 		dataBlock = %db;
@@ -608,61 +654,31 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 		shapeFXID = %shapeFX;
 		isPlanted = true;
 	};
-	if (!isObject(%b))
+	
+	if (isObject(%b))
 	{
-		///TODO: Evaluate whether this should be reached and change response
-		echo("Brick not created!" SPC %db);
-		$Server_LoadFileObj = "";
-		return;
+		%b.setRaycasting(%raycasting);
+		%b.setColliding(%collision);
+		%b.setRendering(%rendering);
 	}
 	
+	%b.setTrusted(1);
+	%b.setTransform(%trans);
 	
-	%b.setRaycasting(%raycasting);
-	%b.setColliding(%collision);
-	%b.setRendering(%rendering);
-	%brickGroup = "";
-	if (isObject(%client))
-	{
-		%client.brickGroup.add(%b);
-		%b.stackBL_ID = %client.bl_id;
-	}
-	else if ($Server::Lan)
-	{
-		BrickGroup_999999.add(%b);
-		if (isObject(BrickGroup_999999.client)) %b.client = BrickGroup_999999.client;
-		%b.stackBL_ID = BrickGroup_999999.bl_id;
-	}
-	else
-	{
-		ClientGroup.getObject(0).brickGroup.add(%b);
-		%b.client = ClientGroup.getObject(0);
-		%b.stackBL_ID = ClientGroup.getObject(0).bl_id;
-	}
+	return %b;
+}
+
+function virtualBrickList::applyCustomSaves(%obj, %i, %b)
+{
 	for (%cs = 0; %cs < $numCustSaves; %cs++)
 	{
 		%csName = $custSaves[%cs, "name"];
 		%obj.cs_create(%csName, %i, %b);
 	}
-			// error("ERROR: ServerLoadSaveFile_Tick() - $LoadingBricks_BrickGroup does not exist!");
-			// messageAll('', "ERROR: ServerLoadSaveFile_Tick() - $LoadingBricks_BrickGroup does not exist!");
-	%b.setTrusted(1);
-	%b.setTransform(%trans);
-	%err = %b.plant();
-	$Server_LoadFileObj = "";
-	//plant() returns an integer:
-	//0 = plant successful
-	//1 = blocked by brick
-	//2 = no attachment points
-	//3 = blocked by something else
-	//4 = ground not level (baseplates only)
-	//5 = burried
-	if(%err == 1 || %err == 3 || %err == 5)
-	{
-		//error("ERROR: loadBricks() - Brick could not be placed!");
-		%failureCount++;
-		%b.delete();
-		return 0; ///TODO: Reevaluate flow of code
-	}
+}
+
+function virtualBrickList::applyPlantedProperties(%obj, %i, %b)
+{
 	if (isObject(%obj.virBricks[%i, "Emitter"]))
 	{
 		%b.setEmitter(%obj.virBricks[%i, "Emitter"]);
@@ -685,11 +701,78 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 		%b.setItemPosition(%obj.virBricks[%i, "Item", 1]);
 		%b.setItemRespawnTime(%obj.virBricks[%i, "Item", 2]);
 	}
+}
+
+function virtualBrickList::createBasicBrick(%obj, %i)
+{
+	%b = %obj.createGhostBrick(%i);
+	%obj.applyCustomSaves(%i, %b);
+	return %b;
+}
+
+function fxDTSBrick::vblPlant(%b)
+{
+	$Server_LoadFileObj = 1;
+	%err = %b.plant();
+	$Server_LoadFileObj = "";
 	
-	%obj.onCreateBrick(%b);
+	return %err;
+}
+
+function virtualBrickList::standardPlantBrick(%obj, %b)
+{
+	%err = %b.vblPlant();
+	//plant() returns an integer:
+	//0 = plant successful
+	//1 = blocked by brick
+	//2 = no attachment points
+	//3 = blocked by something else
+	//4 = ground not level (baseplates only)
+	//5 = burried
+	if(%err == 1 || %err == 3 || %err == 5)
+	{
+		//error("ERROR: loadBricks() - Brick could not be placed!");
+		%failureCount++;
+		%b.delete();
+		%b = 0;
+	}
+	else
+	{
+		%obj.applyPlantedProperties(%i, %b);
+		%obj.onCreateBrick(%b);
+	}
+	return %b;
+}
+
+function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
+{
+	%b = %obj.createBasicBrick(%i);
+	
+	if (!isObject(%b))
+		return 0;
+	
+	%brickGroup = "";
+	if (isObject(%client))
+	{
+		%client.brickGroup.add(%b);
+		%b.stackBL_ID = %client.bl_id;
+	}
+	else if ($Server::Lan)
+	{
+		BrickGroup_999999.add(%b);
+		if (isObject(BrickGroup_999999.client)) %b.client = BrickGroup_999999.client;
+		%b.stackBL_ID = BrickGroup_999999.bl_id;
+	}
+	else
+	{
+		ClientGroup.getObject(0).brickGroup.add(%b);
+		%b.client = ClientGroup.getObject(0);
+		%b.stackBL_ID = ClientGroup.getObject(0).bl_id;
+	}
+
+	%b = %obj.standardPlantBrick(%b);
 	
 	return %b;
-	//add code to handle the emitters and other +- stuff
 }
 
 function virtualBrickList::onCreateBrick(%obj, %b)
