@@ -11,6 +11,8 @@ package vblPackage
 {
 function newVBL(%returnBrickSet)
 {
+	if (%returnBrickSet $= "")
+		%returnBrickSet = 0;
 	return new ScriptObject()
 	{
 		//superClass = BrickManipulation;
@@ -550,7 +552,7 @@ function BrickFactory::createBricksForBlid(%obj, %vbl, %blid)
 	{
 		for (%i = 0; %i < %vbl.numBricks; %i++)
 		{
-			%b = %obj.createBasicBrick(%i);
+			%b = %vbl.createBasicBrick(%i);
 			
 			if (!isObject(%b))
 				continue;
@@ -560,7 +562,7 @@ function BrickFactory::createBricksForBlid(%obj, %vbl, %blid)
 			if (isObject(%client))
 				%client.brickGroup.add(%b);
 
-			%b = %obj.standardPlantBrick(%b);
+			%b = %vbl.standardPlantBrick(%b);
 			
 			%obj.onCreateBrick(%b);
 			if (%obj.returnBrickSet)
@@ -660,10 +662,12 @@ function virtualBrickList::createGhostBrick(%obj, %i)
 		%b.setRaycasting(%raycasting);
 		%b.setColliding(%collision);
 		%b.setRendering(%rendering);
+		
+		%b.setTrusted(1);
+		%b.setTransform(%trans);
 	}
 	
-	%b.setTrusted(1);
-	%b.setTransform(%trans);
+
 	
 	return %b;
 }
@@ -821,6 +825,12 @@ function virtualBrickList::addVBL(%obj, %vbl)
 		%vbl.isColliding(%i), 
 		%vbl.isRendering(%i));
 	}
+}
+
+function virtualBrickList::addSet(%obj, %set)
+{
+	for (%i = 0; %i < %set.getCount(); %i++)
+		%obj.addRealBrick(%set.getObject(%i));
 }
 
 function virtualBrickList::addRealBrick(%obj, %b)
@@ -1445,36 +1455,6 @@ function virtualBrickList::getFace(%obj, %dir)
 	}
 	echo("in the virtualBrickList" SPC %face);
 	return %face;
-}
-
-function virtualBrickList::getNorthFace(%obj)
-{
-	return %obj.maxY + getWord(%obj.brickOffset, 1);
-}
-
-function virtualBrickList::getSouthFace(%obj)
-{
-	return %obj.minY + getWord(%obj.brickOffset, 1);
-}
-
-function virtualBrickList::getWestFace(%obj)
-{
-	return %obj.minX + getWord(%obj.brickOffset, 0);
-}
-
-function virtualBrickList::getEastFace(%obj)
-{
-	return %obj.maxX + getWord(%obj.brickOffset, 0);
-}
-
-function virtualBrickList::getBottomFace(%obj)
-{
-	return %obj.minZ + getWord(%obj.brickOffset, 2);
-}
-
-function virtualBrickList::getTopFace(%obj)
-{
-	return %obj.maxZ + getWord(%obj.brickOffset, 2);
 }
 
 //markers
