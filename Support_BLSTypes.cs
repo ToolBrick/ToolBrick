@@ -47,7 +47,7 @@ function virtualBrickList::cs_create_EVENT(%obj, %num, %brick)
 		%brick.eventInput[%i] = %obj.virBricks[%num, "EVENT", "Input", %i];
 		%brick.eventInputIdx[%i] = %obj.virBricks[%num, "EVENT", "InputIdx", %i];
 		//%brick.eventInputIdx[%i] = inputEvent_GetInputEventIdx(%brick.eventInput);
-		%brick.eventNT[%i] = %obj.virBricks[%num, "EVENT", "NT", %i] @ "_" @ %obj.copyNum;
+		%brick.eventNT[%i] = %obj.virBricks[%num, "EVENT", "NT", %i];
 		%brick.eventOutput[%i] = %obj.virBricks[%num, "EVENT", "Output", %i];
 		%brick.eventOutputAppendClient[%i] = %obj.virBricks[%num, "EVENT", "OutputAppendClient", %i];
 		%brick.eventOutputIdx[%i] = %obj.virBricks[%num, "EVENT", "OutputIdx", %i];
@@ -182,7 +182,7 @@ function virtualBrickList::cs_create_NTOBJECTNAME(%obj, %num, %brick)
 {
 	if (strLen(%obj.virBricks[%num, "NTOBJECTNAME"]) > 0)
 	{
-		%brick.setNTObjectName(%obj.virBricks[%num, "NTOBJECTNAME"] @ "_" @ %obj.copyNum);
+		%brick.setNTObjectName(%obj.virBricks[%num, "NTOBJECTNAME"]);
 	}
 }
 
