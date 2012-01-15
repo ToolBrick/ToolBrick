@@ -183,6 +183,7 @@ function virtualBrickList::cs_addReal_OWNER(%obj, %num, %b)
 
 function virtualBrickList::cs_create_OWNER(%obj, %num, %b)
 {
+	echo("in here" SPC %num SPC %b SPC %obj.virBricks[%num, "OWNER"]);
 	if (%obj.virBricks[%num, "OWNER"] $= "")
 		return;
 	%brickGroupName = "BrickGroup_" @ %obj.virBricks[%num, "OWNER"];
@@ -204,6 +205,7 @@ function virtualBrickList::cs_create_OWNER(%obj, %num, %b)
 	%brickGroup.add(%b);	
 	if (isObject(%brickGroup.client)) %b.client = %brickGroup.client;
 	%b.stackBL_ID = %brickGroup.bl_id;
+	echo("finished" SPC %b SPC %b.stackBL_ID SPC %b.client);
 }
 
 function virtualBrickList::cs_save_OWNER(%obj, %num, %file)

@@ -560,7 +560,7 @@ function BrickFactory::createBricksNoOwner(%obj, %vbl)
 		%set = newRBL();
 	for (%i = 0; %i < %vbl.numBricks; %i++)
 	{
-		%b = %vbl.createBrick(%i);
+		%b = %vbl.createBrickNoOwner(%i);
 		if (isObject(%b))
 			%obj.onCreateBrick(%b);
 		if (%obj.returnBrickSet)
