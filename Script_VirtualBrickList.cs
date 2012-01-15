@@ -510,6 +510,30 @@ function virtualBrickList::createBricks(%obj, %client, %overideClient)
 	return true;
 }
 
+function virtualBrickList::createBricksForBlid(%obj, %blid)
+{
+	%factory = new ScriptObject()
+	{
+		class = "BrickFactory";
+		returnBrickSet = %obj.returnBrickSet;
+	};
+	%ret = %factory.createBricks(%obj, %blid);
+	%factory.delete();
+	return true;
+}
+
+function virtualBrickList::createBricksNoOwner(%obj)
+{
+	%factory = new ScriptObject()
+	{
+		class = "BrickFactory";
+		returnBrickSet = %obj.returnBrickSet;
+	};
+	%ret = %factory.createBricksNoOwner(%obj);
+	%factory.delete();
+	return true;
+}
+
 function BrickFactory::createBricks(%obj, %vbl, %client, %overideClient)
 {
 	if (%client $= "")
@@ -519,6 +543,24 @@ function BrickFactory::createBricks(%obj, %vbl, %client, %overideClient)
 	for (%i = 0; %i < %vbl.numBricks; %i++)
 	{
 		%b = %vbl.createBrick(%i, %client, %overideClient);
+		if (isObject(%b))
+			%obj.onCreateBrick(%b);
+		if (%obj.returnBrickSet)
+			%set.addBrick(%b);
+	}
+	if (%obj.returnBrickSet)
+		return %set;
+	
+	return true;
+}
+
+function BrickFactory::createBricksNoOwner(%obj, %vbl)
+{
+	if (%obj.returnBrickSet)
+		%set = newRBL();
+	for (%i = 0; %i < %vbl.numBricks; %i++)
+	{
+		%b = %vbl.createBrick(%i);
 		if (isObject(%b))
 			%obj.onCreateBrick(%b);
 		if (%obj.returnBrickSet)
@@ -774,6 +816,18 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 		%b.stackBL_ID = ClientGroup.getObject(0).bl_id;
 	}
 
+	%b = %obj.standardPlantBrick(%b);
+	
+	return %b;
+}
+
+//custom save prefs will still give it an owner if available
+function virtualBrickList::createBrickNoOwner(%obj, %i)
+{
+	%b = %obj.createBasicBrick(%i);
+	
+	if (!isObject(%b))
+		return 0;
 	%b = %obj.standardPlantBrick(%b);
 	
 	return %b;
