@@ -581,6 +581,7 @@ function BrickFactory::createBricksForBlid(%obj, %vbl, %blid)
 	{
 		new SimGroup(%brickGroupName);
 		%brickGroup = %brickGroupName.getId();
+		%brickGroup.bl_id = %blid;
 		%brickGroup.name = "BL_ID:" SPC %blid;
 		mainBrickGroup.add(%brickGroup);
 	}
@@ -621,7 +622,6 @@ function BrickFactory::createBricksForBlid(%obj, %vbl, %blid)
 function BrickFactory::onCreateBrick(%obj, %brick)
 {
 	//stub to be overridden
-	echo("stub brick: " @ %brick);
 }
 
 function virtualBrickList::asyncCreateBricks(%obj, %client, %overideClient, %callback, %pass, %set)
