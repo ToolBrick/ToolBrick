@@ -8,6 +8,80 @@
 //inputEvent_GetTargetIndex("fxDTSBrick", %inputIDx, %target)
 //inputEvent_GetInputEventIdx("fxDTSBrick", number, number) returns 
 
+addCustSave("OWNER");
+
+function virtualBrickList::cs_addReal_OWNER(%obj, %num, %b)
+{
+	if (%b.getGroup().bl_id !$= "")
+		%obj.virBricks[%num, "OWNER"] = %b.getGroup().bl_id;
+	else
+		%obj.virBricks[%num, "OWNER"] = "";
+}
+
+function virtualBrickList::cs_create_OWNER(%obj, %num, %b)
+{
+	if (%obj.virBricks[%num, "OWNER"] $= "")
+		return;
+	%brickGroupName = "BrickGroup_" @ %obj.virBricks[%num, "OWNER"];
+	%brickGroup = %brickGroupName.getId();
+	if (!isObject(%brickGroup))
+	{
+		new SimGroup(%brickGroupName);
+		%brickGroup = %brickGroupName.getId();
+		%brickGroup.bl_id = %obj.virBricks[%num, "OWNER"];
+		%brickGroup.name = "BL_ID:" SPC %obj.virBricks[%num, "OWNER"];
+		//%idClient = findClientByBlId(%obj.virBricks[%i, "OWNER"]); //wait, if the group isn't created, the client must not be here!
+		//if (isObject(%idClient))
+		//{
+		//	%brickGroup.client = %idClient;
+		//	%brickGroup.name = %idClient.name;
+		//}
+		mainBrickGroup.add(%brickGroup);
+	}
+	%brickGroup.add(%b);	
+	if (isObject(%brickGroup.client)) %b.client = %brickGroup.client;
+	%b.stackBL_ID = %brickGroup.bl_id;
+}
+
+function virtualBrickList::cs_save_OWNER(%obj, %num, %file)
+{
+	if (%obj.virBricks[%num, "OWNER"] !$= "")
+		%file.writeLine("+-OWNER " @ %obj.virBricks[%num, "OWNER"]);
+}
+
+function virtualBrickList::cs_load_OWNER(%obj, %num, %addData, %addInfo, %addArgs)
+{
+	echo("\"" @ %addData @ "\"");
+	echo(%addInfo);
+	%obj.virBricks[%num, "OWNER"] = %addInfo;
+}
+
+addCustSave("NTOBJECTNAME");
+function virtualBrickList::cs_addReal_NTOBJECTNAME(%obj, %num, %brick)
+{
+	if (strLen(%brick.getName()) > 0) %obj.virBricks[%num, "NTOBJECTNAME"] = %brick.getName();
+	else %obj.virBricks[%num, "NTOBJECTNAME"] = "";
+}
+
+function virtualBrickList::cs_create_NTOBJECTNAME(%obj, %num, %brick)
+{
+	if (strLen(%obj.virBricks[%num, "NTOBJECTNAME"]) > 0)
+	{
+		%brick.setNTObjectName(%obj.virBricks[%num, "NTOBJECTNAME"]);
+	}
+}
+
+function virtualBrickList::cs_save_NTOBJECTNAME(%obj, %num, %file)
+{
+	if (strLen(%obj.virBricks[%num, "NTOBJECTNAME"]) > 0)
+		%file.writeLine("+-NTOBJECTNAME" SPC %obj.virBricks[%num, "NTOBJECTNAME"]);
+}
+
+function virtualBrickList::cs_load_NTOBJECTNAME(%obj, %num, %addData, %addInfo, %addArgs, %line)
+{
+	%obj.virBricks[%num, "NTOBJECTNAME"] = %addInfo;
+}
+
 addCustSave("EVENT");
 function virtualBrickList::cs_addReal_EVENT(%obj, %num, %brick)
 {
@@ -169,80 +243,6 @@ function virtualBrickList::cs_load_EVENT(%obj, %num, %addData, %addInfo, %addArg
 	//this works
 	for (%op = 8; %op < getFieldCount(%line); %op++) //starts in field 8
 		%obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op - 7] = getField(%line, %op);
-}
-
-addCustSave("OWNER");
-
-function virtualBrickList::cs_addReal_OWNER(%obj, %num, %b)
-{
-	if (%b.getGroup().bl_id !$= "")
-		%obj.virBricks[%num, "OWNER"] = %b.getGroup().bl_id;
-	else
-		%obj.virBricks[%num, "OWNER"] = "";
-}
-
-function virtualBrickList::cs_create_OWNER(%obj, %num, %b)
-{
-	if (%obj.virBricks[%num, "OWNER"] $= "")
-		return;
-	%brickGroupName = "BrickGroup_" @ %obj.virBricks[%num, "OWNER"];
-	%brickGroup = %brickGroupName.getId();
-	if (!isObject(%brickGroup))
-	{
-		new SimGroup(%brickGroupName);
-		%brickGroup = %brickGroupName.getId();
-		%brickGroup.bl_id = %obj.virBricks[%num, "OWNER"];
-		%brickGroup.name = "BL_ID:" SPC %obj.virBricks[%num, "OWNER"];
-		//%idClient = findClientByBlId(%obj.virBricks[%i, "OWNER"]); //wait, if the group isn't created, the client must not be here!
-		//if (isObject(%idClient))
-		//{
-		//	%brickGroup.client = %idClient;
-		//	%brickGroup.name = %idClient.name;
-		//}
-		mainBrickGroup.add(%brickGroup);
-	}
-	%brickGroup.add(%b);	
-	if (isObject(%brickGroup.client)) %b.client = %brickGroup.client;
-	%b.stackBL_ID = %brickGroup.bl_id;
-}
-
-function virtualBrickList::cs_save_OWNER(%obj, %num, %file)
-{
-	if (%obj.virBricks[%num, "OWNER"] !$= "")
-		%file.writeLine("+-OWNER " @ %obj.virBricks[%num, "OWNER"]);
-}
-
-function virtualBrickList::cs_load_OWNER(%obj, %num, %addData, %addInfo, %addArgs)
-{
-	echo("\"" @ %addData @ "\"");
-	echo(%addInfo);
-	%obj.virBricks[%num, "OWNER"] = %addInfo;
-}
-
-addCustSave("NTOBJECTNAME");
-function virtualBrickList::cs_addReal_NTOBJECTNAME(%obj, %num, %brick)
-{
-	if (strLen(%brick.getName()) > 0) %obj.virBricks[%num, "NTOBJECTNAME"] = %brick.getName();
-	else %obj.virBricks[%num, "NTOBJECTNAME"] = "";
-}
-
-function virtualBrickList::cs_create_NTOBJECTNAME(%obj, %num, %brick)
-{
-	if (strLen(%obj.virBricks[%num, "NTOBJECTNAME"]) > 0)
-	{
-		%brick.setNTObjectName(%obj.virBricks[%num, "NTOBJECTNAME"]);
-	}
-}
-
-function virtualBrickList::cs_save_NTOBJECTNAME(%obj, %num, %file)
-{
-	if (strLen(%obj.virBricks[%num, "NTOBJECTNAME"]) > 0)
-		%file.writeLine("+-NTOBJECTNAME" SPC %obj.virBricks[%num, "NTOBJECTNAME"]);
-}
-
-function virtualBrickList::cs_load_NTOBJECTNAME(%obj, %num, %addData, %addInfo, %addArgs, %line)
-{
-	%obj.virBricks[%num, "NTOBJECTNAME"] = %addInfo;
 }
 
 addCustSave("noimport");
