@@ -51,8 +51,6 @@ function virtualBrickList::cs_save_OWNER(%obj, %num, %file)
 
 function virtualBrickList::cs_load_OWNER(%obj, %num, %addData, %addInfo, %addArgs)
 {
-	echo("\"" @ %addData @ "\"");
-	echo(%addInfo);
 	%obj.virBricks[%num, "OWNER"] = %addInfo;
 }
 
@@ -136,7 +134,6 @@ function virtualBrickList::cs_create_EVENT(%obj, %num, %brick)
 
 function virtualBrickList::cs_rotateCW_Event(%obj, %num, %times)
 {
-	echo("Event rotation");
 	//is it a good idea to declare constants inside a function called multiple times?
 	//this will probably be switched to some globals
 	%relays["fireRelayNorth"] = 1;
@@ -169,7 +166,6 @@ function virtualBrickList::cs_rotateCW_Event(%obj, %num, %times)
 
 function virtualBrickList::cs_rotateCCW_Event(%obj, %num, %times)
 {
-	echo("Event rotation 2");
 }
 
 function virtualBrickList::cs_save_EVENT(%obj, %num, %file)

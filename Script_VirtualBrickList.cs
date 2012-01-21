@@ -24,8 +24,6 @@ function newVBL(%returnBrickSet)
 
 function inputEvent_GetTargetIndex(%arg1, %arg2, %arg3)
 {
-	echo("TARGET STRING");
-	echo(%arg1 SPC %arg2 SPC %arg3);
 	Parent::inputEvent_GetTargetIndex(%arg1, %arg2, %arg3);
 }
 function virtualBrickList::onAdd(%this, %obj)
@@ -106,7 +104,6 @@ function virtualBrickList::getPosition(%obj, %num)
 function virtualBrickList::getObjectBox(%obj, %num)
 {
 	%db = %obj.getDatablock(%num);
-	echo("name!:" SPC %db.getName());
 	%angle = %obj.getAngleId(%num);
 	%angle %= 2;
 	if (!%angle)
@@ -133,7 +130,6 @@ function virtualBrickList::getBrickSize(%obj, %num)
 {
 	%db = %obj.getDatablock(%num);
 	%angle = %obj.getAngleId(%num);
-	echo("ANGLE!" SPC %angle);
 	%angle %= 2;
 	if (!%angle)
 	{
@@ -145,7 +141,6 @@ function virtualBrickList::getBrickSize(%obj, %num)
 		%x = %db.brickSizeY;
 		%y = %db.brickSizeX;
 	}
-	echo("sizer" SPC %x SPC %y SPC %z);
 	%z = %db.brickSizeZ;
 	return %x SPC %y SPC %z;
 }
@@ -430,16 +425,11 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 function virtualBrickList::exportBLSFile(%obj, %fileName)
 {
 	%file = new FileObject();
-	//echo(%fileName);
 	%file.openForWrite(%fileName);
 	%file.writeLine("This is a Blockland save file.  You probably shouldn't modify it cause you'll screw it up.");
 	%file.writeLine("1");
 	//%file.writeLine("This file has been exported from virtualBrickList.");
 	%file.writeLine("");
-	//for (%i = 0; %i < $pref::brickColors::num; %i++)
-	//{
-	//	%file.writeLine($pref::brickColors[%i]);
-	//}
 	//export colors here
 	for (%i = 0; %i < 64; %i++)
 		%file.writeLine(getColorIDTable(%i));
@@ -627,7 +617,6 @@ function BrickFactory::onCreateBrick(%obj, %brick)
 
 function virtualBrickList::asyncCreateBricks(%obj, %client, %overideClient, %callback, %pass, %set)
 {
-	//echo("back on track!");
 	if (%client $= "")
 		%client = 0;
 	if (!%pass)
@@ -645,12 +634,10 @@ function virtualBrickList::asyncCreateBricks(%obj, %client, %overideClient, %cal
 	}
 	if (%pass < %obj.numBricks)
 	{
-		//echo("do the schedule" SPC %obj);
 		%obj.asyncCreate = %obj.schedule(33, "asyncCreateBricks", %client, %overideClient, %callback, %pass, %set);
 	}
 	else
 	{
-		//echo("call the callback");
 		call(%callback, %obj, %set);
 	}
 }
@@ -660,7 +647,6 @@ function virtualBrickList::createGhostBrick(%obj, %i)
 	%db = %obj.virBricks[%i, 0];
 	if (!isObject(%db))
 	{
-		echo("data block does not exist!!!" SPC %db);
 		return;
 	}
 	%pos = %obj.getPosition(%i);
@@ -686,7 +672,6 @@ function virtualBrickList::createGhostBrick(%obj, %i)
 		case 3:
 		%trans = %trans SPC " 0 0 -1" SPC $piOver2;
 	}
-	//echo("Creating brick ", %uiName SPC %db);
 	
 	%b = new fxDTSBrick()
 	{
@@ -1064,7 +1049,7 @@ function virtualBrickList::shiftBricks(%obj, %dis)
 	%x = getWord(%dis, 0);
 	%y = getWord(%dis, 1);
 	%z = getWord(%dis, 2);
-	//echo(%obj.maxX SPC "MAX X");
+	
 	%obj.maxX += %x;
 	%obj.minX += %x;
 	%obj.maxY += %y;
@@ -1080,7 +1065,6 @@ function virtualBrickList::shiftBricks(%obj, %dis)
 
 function virtualBrickList::realign(%obj, %posStr)
 {
-	//echo("realligning");
 	%dirs["north"] = 0;		%dirs[0] = 0;
 	%dirs["east"] = 1;		%dirs[1] = 1;
 	%dirs["south"] = 2;		%dirs[2] = 2;
@@ -1106,22 +1090,16 @@ function virtualBrickList::realign(%obj, %posStr)
 		{
 			case 0:
 				%yOff += %pos - %obj.maxY;
-				//echo("case" SPC %dirs[%dir] SPC %pos SPC %obj.maxY);
 			case 1:
 				%xOff += %pos - %obj.maxX;
-				//echo("case" SPC %dirs[%dir] SPC %pos);
 			case 2:
 				%yOff += %pos - %obj.minY;
-				//echo("case" SPC %dirs[%dir] SPC %pos);
 			case 3:
 				%xOff += %pos - %obj.minX;
-				//echo("case" SPC %dirs[%dir] SPC %pos);
 			case 4:
 				%zOff += %pos - %obj.maxZ;
-				//echo("case" SPC %dirs[%dir] SPC %pos);
 			case 5:
 				%zOff += %pos - %obj.minZ;
-				//echo("case" SPC %dirs[%dir] SPC %pos);
 			case 6:
 				%xOff += %pos - getWord(%obj.getCenter(), 0);
 			case 7:
@@ -1130,7 +1108,6 @@ function virtualBrickList::realign(%obj, %posStr)
 				%zOff += %pos - getWord(%obj.getCenter(), 2);
 		}
 	}
-	//echo("yOff" SPC %yOff);
 	if (%xOff != 0 || %yOff != 0 || %zOff != 0)
 		%obj.shiftBricks(%xOff SPC %yOff SPC %zOff);
 }
@@ -1252,7 +1229,6 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 
 function virtualBrickList::rotateBricksCCW(%obj, %times)
 {
-//echo(%obj SPC %times);
 	if (%times $= "") %times = 1;
 	%times %= 4;
 	if (!%times) return;
@@ -1508,7 +1484,6 @@ function virtualBrickList::getFace(%obj, %dir)
 		case 5:
 			%face = %obj.getBottomFace();
 	}
-	echo("in the virtualBrickList" SPC %face);
 	return %face;
 }
 
