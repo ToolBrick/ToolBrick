@@ -234,7 +234,10 @@ function virtualBrickList::cs_load_EVENT(%obj, %num, %addData, %addInfo, %addArg
 	
 	%obj.virBricks[%num, "EVENT", "Output", %i] = getField(%line, 7); //should be field 7
 
-	%outputClass = inputEvent_GetTargetClass("fxDtsBrick", %obj.virBricks[%num, "EVENT", "InputIdx", %i], %obj.virBricks[%num, "EVENT", "TargetIdx", %i]);
+	if (%obj.virBricks[%num, "EVENT", "TargetIdx", %i] == -1)
+		%outputClass = "fxDTSBrick";
+	else
+		%outputClass = inputEvent_GetTargetClass("fxDtsBrick", %obj.virBricks[%num, "EVENT", "InputIdx", %i], %obj.virBricks[%num, "EVENT", "TargetIdx", %i]);
 	%obj.virBricks[%num, "EVENT", "OutputIdx", %i] = outputEvent_GetOutputEventIdx(%outputClass, %obj.virBricks[%num, "EVENT", "Output", %i]);
 	
 	//look up in a table: $OutputEvent_AppendClient[class, outputIdx];
