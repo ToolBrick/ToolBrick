@@ -602,11 +602,12 @@ function BrickFactory::createBricksForBlid(%obj, %vbl, %blid)
 				
 			%b.stackBL_ID = %bl_id;
 			
-			if (isObject(%client))
-				%client.brickGroup.add(%b);
+			%brickGroupName.add(%b);
 
 			%b = %vbl.standardPlantBrick(%b);
 			
+			if (!isObject(%b))
+				continue;
 			%obj.onCreateBrick(%b);
 			if (%obj.returnBrickSet)
 				%set.addBrick(%b);
