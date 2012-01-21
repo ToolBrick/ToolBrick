@@ -181,7 +181,19 @@ function virtualBrickList::cs_save_EVENT(%obj, %num, %file)
 		%paraList = $Output["Event", "parameterList" @ %target, %obj.virBricks[%num, "EVENT", "OutputIdx", %i]];
 		%outputParameters = "";
 		for (%op = 1; %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op] !$= ""; %op++)
-			%outputParameters = %outputParameters @ %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op] @ "\t";
+		{
+			if (%obj.virBricks[%num, "EVENT", "TargetIdx", %i] == -1)
+				%outputClass = "fxDTSBrick";
+			else
+				%outputClass = inputEvent_GetTargetClass("fxDtsBrick", %obj.virBricks[%num, "EVENT", "InputIdx", %i], %obj.virBricks[%num, "EVENT", "TargetIdx", %i]);
+			
+			%param = %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op];
+			
+			if (isObject(%param) && getWord(getField($OutputEvent_parameterList[%outputClass, %obj.virBricks[%num, "EVENT", "OutputIdx", %i]], %op - 1), 0) $= "dataBlock")
+				%param = %param.getName();
+			
+			%outputParameters = %outputParameters @ %param @ "\t";
+		}
 		%file.writeLine("+-EVENT" TAB
 		%i TAB
 		%obj.virBricks[%num, "EVENT", "Enabled", %i] TAB
@@ -245,7 +257,14 @@ function virtualBrickList::cs_load_EVENT(%obj, %num, %addData, %addInfo, %addArg
 	
 	//this works
 	for (%op = 8; %op < getFieldCount(%line); %op++) //starts in field 8
+	{
+		%param = getField(%line, %op);
+		
+		if (isObject(%param) && getWord(getField($OutputEvent_parameterList[%outputClass, %obj.virBricks[%num, "EVENT", "OutputIdx", %i]], %op - 1), 0) $= "dataBlock")
+			%param = %param.getId();
+				
 		%obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op - 7] = getField(%line, %op);
+	}
 }
 
 addCustSave("noimport");
