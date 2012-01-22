@@ -594,7 +594,7 @@ function BrickFactory::createBricksForBlid(%obj, %vbl, %blid)
 			
 			%brickGroupName.add(%b);
 
-			%b = %vbl.standardPlantBrick(%b);
+			%b = %vbl.standardPlantBrick(%i, %b);
 			
 			if (!isObject(%b))
 				continue;
@@ -751,7 +751,7 @@ function fxDTSBrick::vblPlant(%b)
 	return %err;
 }
 
-function virtualBrickList::standardPlantBrick(%obj, %b)
+function virtualBrickList::standardPlantBrick(%obj, %i, %b)
 {
 	%err = %b.vblPlant();
 	//plant() returns an integer:
@@ -802,7 +802,7 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 		%b.stackBL_ID = ClientGroup.getObject(0).bl_id;
 	}
 
-	%b = %obj.standardPlantBrick(%b);
+	%b = %obj.standardPlantBrick(%i, %b);
 	
 	return %b;
 }
@@ -814,7 +814,7 @@ function virtualBrickList::createBrickNoOwner(%obj, %i)
 	
 	if (!isObject(%b))
 		return 0;
-	%b = %obj.standardPlantBrick(%b);
+	%b = %obj.standardPlantBrick(%i, %b);
 	
 	return %b;
 }
@@ -870,7 +870,10 @@ function virtualBrickList::addVBL(%obj, %vbl)
 function virtualBrickList::addSet(%obj, %set)
 {
 	for (%i = 0; %i < %set.getCount(); %i++)
+	{
+		%b = %set.getObject(%i);
 		%obj.addRealBrick(%set.getObject(%i));
+	}
 }
 
 function virtualBrickList::addRealBrick(%obj, %b)

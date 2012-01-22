@@ -23,8 +23,7 @@ function virtualBrickList::cs_create_OWNER(%obj, %num, %b)
 	if (%obj.virBricks[%num, "OWNER"] $= "")
 		return;
 	%brickGroupName = "BrickGroup_" @ %obj.virBricks[%num, "OWNER"];
-	%brickGroup = %brickGroupName.getId();
-	if (!isObject(%brickGroup))
+	if (!isObject(%brickGroupName))
 	{
 		new SimGroup(%brickGroupName);
 		%brickGroup = %brickGroupName.getId();
@@ -38,6 +37,7 @@ function virtualBrickList::cs_create_OWNER(%obj, %num, %b)
 		//}
 		mainBrickGroup.add(%brickGroup);
 	}
+	%brickGroup = %brickGroupName.getId();
 	%brickGroup.add(%b);	
 	if (isObject(%brickGroup.client)) %b.client = %brickGroup.client;
 	%b.stackBL_ID = %brickGroup.bl_id;
