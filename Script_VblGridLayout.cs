@@ -95,14 +95,14 @@ function ServerCmdnewVblGrid(%client, %name)
 		client = %client;
 	};
 	
-	%client.vblGrid.import("saves/vbl/" @ %name);
+	%client.vblGrid.import("config/server/grid/" @ %name @ ".vgl");
 }
 
 function ServerCmdSaveVblGrid(%client, %name)
 {
 	if (isObject(%client.vblGrid))
 	{
-		%client.vblGrid.export("saves/vbl/" @ %name);
+		%client.vblGrid.export("config/server/grid/" @ %name @ ".vgl");
 	}
 }
 
@@ -163,7 +163,7 @@ package VblGridPackage
 	function virtualBrickList::onFinishAddingBuild(%obj, %bf)
 	{
 		Parent::onFinishAddingBuild(%bf);
-		echo(%obj.client);
+		//echo(%obj.client);
 		if (%obj.isVblGrid)
 			%obj.client.vblGrid.addTile(%obj);
 		commandToClient(%obj.client, 'centerPrint', "\c3Added a tile.", 3);
@@ -185,9 +185,12 @@ function VblGridLayout::generateBuild(%obj, %pos)
 		{
 			%tileCorner = %x * %xSize + getWord(%pos, 0) SPC %y * %ySize + getWord(%pos, 1) SPC getWord(%pos, 2);
 			%tileNum = %obj.grid[%x, %y];
-			%vbl = %obj.tiles.getObject(%tileNum);
-			%vbl.realign("west" SPC getWord(%tileCorner, 0) TAB "south" SPC getWord(%tileCorner, 1) TAB "down" SPC getWord(%tileCorner, 2));
-			%vbl.createBricks();
+			if (%tileNum != 0)
+			{
+				%vbl = %obj.tiles.getObject(%tileNum);
+				%vbl.realign("west" SPC getWord(%tileCorner, 0) TAB "south" SPC getWord(%tileCorner, 1) TAB "down" SPC getWord(%tileCorner, 2));
+				%vbl.createBricks();
+			}
 		}
 	}
 }
@@ -196,4 +199,36 @@ function ServerCmdgenerateGrid(%client, %x, %y, %z)
 {
 	if (isObject(%client.vblGrid))
 		%client.vblGrid.generateBuild(%x SPC %y SPC %z);
+}
+
+function countGrid(%path)
+{
+	%file = new FileObject();
+	%file.openForRead(%path);
+	%lineCount = 0;
+	%col = 0;
+	%count = 0;
+	while (!%file.isEOF())
+	{
+		%lineCount++;
+		%line = %file.readLine();
+		%col = getWordCount(%line);
+		for (%w = 0; %w < %col; %w++)
+		{
+			%word = getWord(%line, %w);
+			if (%word != 0)
+				%count++;
+		}
+	}
+	echo("rows: " @ %lineCount @ " cols: " @ %col @ " tiles: " @ %count);
+	%file.close();
+	%file.delete();
+}
+
+//56 -31 0.1
+//59.5 -31 0.1
+//56 -27 0.1
+function VblGridLayout::scanTiles()
+{
+	//%start = 
 }
