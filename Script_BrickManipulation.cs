@@ -1,3 +1,6 @@
+//The idea of brick manipulation was that it would be a common interface between VirtualBrickList and RealBrickList
+//This probably won't work or is pointless, but should be considered a little more before being completely removed
+
 function BrickManipulation::onAdd(%this, %obj)
 {
 	
