@@ -85,7 +85,7 @@ function VirtualBrickList::preview(%obj)
 
 function virtualBrickList::previewBrick(%obj, %i, %client, %overideClient)
 {
-	%db = %obj.virBricks[%i, 0];
+	%db = %obj.getDatablock(%i);
 	if (!isObject(%db))
 	{
 		echo("data block does not exist!!!" SPC %db);
