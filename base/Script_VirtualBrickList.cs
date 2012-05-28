@@ -646,7 +646,7 @@ function virtualBrickList::asyncCreateBricks(%obj, %client, %overideClient, %cal
 
 function virtualBrickList::createGhostBrick(%obj, %i)
 {
-	%db = %obj.virBricks[%i, 0];
+	%db = %obj.getDatablock(%i);
 	if (!isObject(%db))
 	{
 		return;
@@ -1045,11 +1045,6 @@ function highlightBricks(%bgroup, %stop)
 
 function virtualBrickList::shiftBricks(%obj, %dis)
 {
-	//for (%i = 0; %i < %obj.numBricks; %i++)
-	//{
-	//	%pos = %obj.virBricks[%i, 1];
-	//	%obj.virBricks[%i, 1] = VectorAdd(%pos, %dis);
-	//}
 	%obj.brickOffset = VectorAdd(%obj.brickOffset, %dis);
 	%x = getWord(%dis, 0);
 	%y = getWord(%dis, 1);
