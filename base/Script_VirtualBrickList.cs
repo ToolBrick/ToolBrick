@@ -120,10 +120,11 @@ function virtualBrickList::getObjectBox(%obj, %num)
 	
 	return -%x SPC -%y SPC -%z SPC %x SPC %y SPC %z;
 }
+
 function virtualBrickList::getWorldBox(%obj, %num)
 {
 	%pos = %obj.getPosition(%num);
-	%ob = %obj.getObjectBox();
+	%ob = %obj.getObjectBox(%num);
 	return VectorAdd(%pos, getWords(%ob, 0, 2)) SPC VectorAdd(%pos, getWords(%ob, 3, 5));
 }
 function virtualBrickList::getBrickSize(%obj, %num)
