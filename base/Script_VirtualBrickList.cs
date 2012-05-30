@@ -232,7 +232,7 @@ function virtualBrickList::addBrick(%obj, %datablock, %pos, %angleid, %isBasepla
 	%obj.setColorfx(%idx, %colorfx);
 	%obj.setShapefx(%idx, %shapefx);
 	%obj.setRaycasting(%idx, %raycasting);
-	%obj.setCollision(%idx, %collision);
+	%obj.setColliding(%idx, %collision);
 	%obj.setRendering(%idx, %rendering);
 	%obj.onAddBasicData(%idx);
 	
@@ -467,7 +467,6 @@ function virtualBrickList::clearList(%obj)
 	//that slowly deletes all the objects
 	while (%obj.vBricks.getCount())
 		%obj.vBricks.getObject(0).delete();
-	%obj.vBricks.delete();
 	
 	%obj.brickOffset = "0 0 0"; //is this alright to do?
 }
