@@ -97,32 +97,22 @@ function virtualBrickList::cs_load(%obj, %csName, %num, %addData, %addInfo, %add
 		eval("%obj.cs_load_" @ %csName @ "(%num,  %addData, %addInfo, %addArgs, %line);");
 }
 
+function virtualBrickList::getVirtualBrick(%obj, %num)
+{
+	return %obj.vBricks.getObject(%num);
+}
+
 function virtualBrickList::getDatablock(%obj, %num)
 {
-	return %obj.virBricks[%num, 0];
+	return %obj.getVirtualBrick(%num).getDatablock();
 }
 function virtualBrickList::getPosition(%obj, %num)
 {
-	return VectorAdd(%obj.virBricks[%num, 1], %obj.brickOffset);
+	return VectorAdd(%obj.getVirtualBrick(%num).getPosition(), %obj.brickOffset);
 }
 function virtualBrickList::getObjectBox(%obj, %num)
 {
-	%db = %obj.getDatablock(%num);
-	%angle = %obj.getAngleId(%num);
-	%angle %= 2;
-	if (!%angle)
-	{
-		%x = %db.brickSizeX/4;
-		%y = %db.brickSizeY/4;
-	}
-	else
-	{
-		%x = %db.brickSizeY/4;
-		%y = %db.brickSizeX/4;
-	}
-	%z = %db.brickSizeZ/10;
-	
-	return -%x SPC -%y SPC -%z SPC %x SPC %y SPC %z;
+	return %obj.getVirtualBrick(%num).getObjectBox();
 }
 
 function virtualBrickList::getWorldBox(%obj, %num)
@@ -133,120 +123,92 @@ function virtualBrickList::getWorldBox(%obj, %num)
 }
 function virtualBrickList::getBrickSize(%obj, %num)
 {
-	%db = %obj.getDatablock(%num);
-	%angle = %obj.getAngleId(%num);
-	%angle %= 2;
-	if (!%angle)
-	{
-		%x = %db.brickSizeX;
-		%y = %db.brickSizeY;
-	}
-	else
-	{
-		%x = %db.brickSizeY;
-		%y = %db.brickSizeX;
-	}
-	%z = %db.brickSizeZ;
-	return %x SPC %y SPC %z;
+	return %obj.getVirtualBrick(%num).getBrickSize();
 }
 function virtualBrickList::getSize(%obj, %num)
 {
-	%db = %obj.getDatablock(%num);
-	%angle = %obj.getAngleId(%num);
-	%angle %= 2;
-	if (!%angle)
-	{
-		%x = %db.brickSizeX/2;
-		%y = %db.brickSizeY/2;
-	}
-	else
-	{
-		%x = %db.brickSizeY/2;
-		%y = %db.brickSizeX/2;
-	}
-	%z = %db.brickSizeZ/5;
-	return %x SPC %y SPC %z;
+	return %obj.getVirtualBrick(%num).getSize();
 }
 function virtualBrickList::getAngleId(%obj, %num)
 {
-	return %obj.virBricks[%num, 2];
+	return %obj.getVirtualBrick(%num).getAngleId();
 }
 function virtualBrickList::isBP(%obj, %num)
 {
-	return %obj.virBricks[%num, 3];
+	return %obj.getVirtualBrick(%num).isBP();
 }
 function virtualBrickList::getColorId(%obj, %num)
 {
-	return %obj.virBricks[%num, 4];
+	return %obj.getVirtualBrick(%num).getColorId();
 }
 function virtualBrickList::getPrint(%obj, %num)
 {
-	return %obj.virBricks[%num, 5];
+	return %obj.getVirtualBrick(%num).getPrint();
 }
 function virtualBrickList::getColorFx(%obj, %num)
 {
-	return %obj.virBricks[%num, 6];
+	return %obj.getVirtualBrick(%num).getColorFx();
 }
 function virtualBrickList::getShapeFx(%obj, %num)
 {
-	return %obj.virBricks[%num, 7];
+	return %obj.getVirtualBrick(%num).getShapeFx();
 }
 function virtualBrickList::isRaycasting(%obj, %num)
 {
-	return %obj.virBricks[%num, 8];
+	return %obj.getVirtualBrick(%num).isRaycasting();
 }
 function virtualBrickList::isColliding(%obj, %num)
 {
-	return %obj.virBricks[%num, 9];
+	return %obj.getVirtualBrick(%num).isColliding();
 }
 function virtualBrickList::isRendering(%obj, %num)
 {
-	return %obj.virBricks[%num, 10];
+	return %obj.getVirtualBrick(%num).isRendering();
 }
 
 function virtualBrickList::setDatablock(%obj, %num, %db)
 {
-	%obj.virBricks[%num, 0] = %db;
+	%obj.getVirtualBrick(%num).setDatablock(%db);
 }
 function virtualBrickList::setPosition(%obj, %num, %pos) //takes into account the offset
 {
-	%obj.virBricks[%num, 1] = VectorSub(%pos, %obj.brickOffset);
+	%obj.getVirtualBrick(%num).setPosition(VectorSub(%pos, %obj.brickOffset));
 }
 function virtualBrickList::setAngleId(%obj, %num, %id)
 {
-	%obj.virBricks[%num, 2] = %id;
+	%obj.getVirtualBrick(%num).setAngleId(%id);
 }
 function virtualBrickList::setBP(%obj, %num, %bp)
 {
-	%obj.virBricks[%num, 3] = %bp;
+	%obj.getVirtualBrick(%num).setBP(%bp);
 }
 function virtualBrickList::setColorId(%obj, %num, %id)
 {
-	%obj.virBricks[%num, 4] = %id;
+	%obj.getVirtualBrick(%num).setColorId(%id);
 }
 function virtualBrickList::setPrint(%obj, %num, %print)
 {
-	%obj.virBricks[%num, 5] = %print;
+	%obj.getVirtualBrick(%num).setPrint(%print);
 }
 function virtualBrickList::setColorFx(%obj, %num, %fx)
 {
-	%obj.virBricks[%num, 6] = %fx;
+	%obj.getVirtualBrick(%num).setColorFx(%fx);
 }
 function virtualBrickList::setShapeFx(%obj, %num, %fx)
 {
-	%obj.virBricks[%num, 7] = %fx;
+	%obj.getVirtualBrick(%num).setShapeFx(%fx);
 }
 function virtualBrickList::setRaycasting(%obj, %num, %raycasting)
 {
-	%obj.virBricks[%num, 8] = %raycasting;
+	%obj.getVirtualBrick(%num).setRaycasting(%raycasting);
 }
 function virtualBrickList::setColliding(%obj, %num, %colliding)
 {
-	%obj.virBricks[%num, 9] = %colliding;
+	%obj.getVirtualBrick(%num).setColliding(%colliding);
 }
 function virtualBrickList::setRendering(%obj, %num, %rendering)
 {
-	%obj.virBricks[%num, 10] = %rendering;
+	%obj.getVirtualBrick(%num).setRendering(%rendering);
 }
 
 function virtualBrickList::addBrick(%obj, %datablock, %pos, %angleid, %isBaseplate, %color, %print, %colorfx, %shapefx, %raycasting, %collision, %rendering)
@@ -1377,6 +1339,11 @@ function virtualBrickList::resetSize(%obj)
 	%obj.minX = "";
 	%obj.minY = "";
 	%obj.minZ = "";
+}
+
+function virtualBrickList::getOffset(%obj)
+{
+	return %obj.brickOffset;
 }
 
 function virtualBrickList::getCount(%obj)
