@@ -1202,7 +1202,6 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 	%obj.resetSize();
 	for (%i = 0; %i < %obj.getCount(); %i++)
 	{
-		//%pos = %obj.virBricks[%i, 1];
 		%pos = %obj.getPosition(%i);
 		%x = getWord(%pos, 0);
 		%y = getWord(%pos, 1);
@@ -1257,7 +1256,6 @@ function virtualBrickList::rotateBricksCCW(%obj, %times)
 	%obj.resetSize();
 	for (%i = 0; %i < %obj.getCount(); %i++)
 	{
-		//%pos = %obj.virBricks[%i, 1];
 		%pos = %obj.getPosition(%i);
 		%x = getWord(%pos, 0);
 		%y = getWord(%pos, 1);
