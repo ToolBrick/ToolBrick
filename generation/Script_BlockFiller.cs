@@ -103,7 +103,7 @@ function BlockFiller::fillSpace(%pos, %space)
 					
 					if (!isObject(%vbl))
 						%vbl = %add;
-					else if (%vbl.numBricks > %add.numBricks)
+					else if (%vbl.getCount() > %add.getCount())
 					{
 						%vbl.delete();
 						%vbl = %add;
@@ -224,7 +224,7 @@ package BlockFillerPackage
 				%bz = (%client.gCBMaxZ - %client.gCBMinZ) / 0.2;
 				
 				%client.vbl.addVBL(BlockFiller::fillSpace(%client.gCBMinX SPC %client.gCBMinY SPC %client.gCBMinZ, %bx SPC %by SPC %bz));
-				for (%c = 0; %c < %client.vbl.numBricks; %c++)
+				for (%c = 0; %c < %client.vbl.getCount(); %c++)
 					%client.vbl.setColorId(%c, %client.currentColor);
 				%client.vbl.createBricks(%client, %client);
 				%client.vbl.clearList();
@@ -254,9 +254,9 @@ function scaleBuild(%build, %scale)
 {
 	%vbl = newVBL();
 	%minBound = getWords(%build.getWorldBox(), 0, 2);
-	for (%i = 0; %i < %build.numBricks; %i++)
+	for (%i = 0; %i < %build.getCount(); %i++)
 	{
-		echo(%i SPC "out of" SPC %build.numBricks);
+		echo(%i SPC "out of" SPC %build.getCount());
 		%db = %build.getDatablock(%i);
 		%color = %build.getColorId(%i);
 		%minOff = VectorScale(%build.getSize(%i), %scale/2);
@@ -275,11 +275,11 @@ function scaleBuild(%build, %scale)
 		
 		%startPos = VectorSub(%newPos, %minOff);
 		%add = BlockFiller::fillSpace(%sPos, %bSize);
-		for (%c = 0; %c < %add.numBricks; %c++)
+		for (%c = 0; %c < %add.getCount(); %c++)
 			%add.setColorId(%c, %color);
 		%vbl.addVBL(%add);
 	}
-	echo(%vbl.numBricks);
+	echo(%vbl.getCount());
 	return %vbl;
 }
 

@@ -28,13 +28,17 @@ function inputEvent_GetTargetIndex(%arg1, %arg2, %arg3)
 }
 function virtualBrickList::onAdd(%this, %obj)
 {
-	%obj.numBricks = 0;
 	%obj.absoluteRotation = 0;
+	%obj.vBricks = new SimSet();
 	%obj.markers = new SimSet();
 }
 
 function virtualBrickList::onRemove(%this, %obj)
 {
+	%obj.clearList();
+	
+	%obj.vBricks.delete();
+	
 	if (isObject(%obj.markers))
 	{
 		while (%obj.markers.getCount())
@@ -247,7 +251,15 @@ function virtualBrickList::setRendering(%obj, %num, %rendering)
 
 function virtualBrickList::addBrick(%obj, %datablock, %pos, %angleid, %isBaseplate, %color, %print, %colorfx, %shapefx, %raycasting, %collision, %rendering)
 {
-	%idx = %obj.numBricks;
+	//currently assuming this is the only way to insert a brick into the vbl!
+	%idx = %obj.getCount();
+	
+	//Assignments can be done directly here, might be worth doing that instead of calling all these methods
+	%vBrick = new ScriptObject()
+	{
+		class = "VirtualBrick";
+	};
+	%obj.vBricks.add(%vBrick);
 	
 	%obj.setDatablock(%idx, %datablock);
 	%obj.setPosition(%idx, %pos);
@@ -260,9 +272,9 @@ function virtualBrickList::addBrick(%obj, %datablock, %pos, %angleid, %isBasepla
 	%obj.setRaycasting(%idx, %raycasting);
 	%obj.setCollision(%idx, %collision);
 	%obj.setRendering(%idx, %rendering);
-	%obj.onAddBasicData(%obj.numBricks);
-	%obj.numBricks++;
-	return %obj.numBricks - 1;
+	%obj.onAddBasicData(%idx);
+	
+	return %obj.getCount() - 1;
 }
 
 function virtualBrickList::getSizeX(%obj)
@@ -436,8 +448,8 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 	//export colors here
 	for (%i = 0; %i < 64; %i++)
 		%file.writeLine(getColorIDTable(%i));
-	%file.writeLine("Linecount" SPC %obj.numBricks);
-	for (%brickNum = 0; %brickNum < %obj.numBricks; %brickNum++)
+	%file.writeLine("Linecount" SPC %obj.getCount());
+	for (%brickNum = 0; %brickNum < %obj.getCount(); %brickNum++)
 	{
 		%datablock = %obj.getDatablock(%brickNum);
 		%pos = %obj.getPosition(%brickNum);
@@ -487,7 +499,14 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 
 function virtualBrickList::clearList(%obj)
 {
-	%obj.numBricks = 0;
+	//Two important notes:
+	//First, this could be bad to do if multiple lists are allowed to reference a single VirtualBrick
+	//Second, this could take awhile, maybe the onRemove method should pass this to another method
+	//that slowly deletes all the objects
+	while (%obj.vBricks.getCount())
+		%obj.vBricks.getObject(0).delete();
+	%obj.vBricks.delete();
+	
 	%obj.brickOffset = "0 0 0"; //is this alright to do?
 }
 
@@ -533,7 +552,8 @@ function BrickFactory::createBricks(%obj, %vbl, %client, %overideClient)
 		%client = 0;
 	if (%obj.returnBrickSet)
 		%set = newRBL();
-	for (%i = 0; %i < %vbl.numBricks; %i++)
+		
+	for (%i = 0; %i < %vbl.getCount(); %i++)
 	{
 		%b = %vbl.createBrick(%i, %client, %overideClient);
 		if (isObject(%b))
@@ -551,7 +571,7 @@ function BrickFactory::createBricksNoOwner(%obj, %vbl)
 {
 	if (%obj.returnBrickSet)
 		%set = newRBL();
-	for (%i = 0; %i < %vbl.numBricks; %i++)
+	for (%i = 0; %i < %vbl.getCount(); %i++)
 	{
 		%b = %vbl.createBrickNoOwner(%i);
 		if (isObject(%b))
@@ -586,7 +606,7 @@ function BrickFactory::createBricksForBlid(%obj, %vbl, %blid)
 		%obj.createBricks(%vbl, %client);
 	else
 	{
-		for (%i = 0; %i < %vbl.numBricks; %i++)
+		for (%i = 0; %i < %vbl.getCount(); %i++)
 		{
 			%b = %vbl.createBasicBrick(%i);
 			
@@ -627,7 +647,7 @@ function virtualBrickList::asyncCreateBricks(%obj, %client, %overideClient, %cal
 	%times = 0;
 	if (%obj.returnBrickSet && !isObject(%set))
 		%set = newRBL();
-	while (%pass < %obj.numBricks && %times < 4)
+	while (%pass < %obj.getCount() && %times < 4)
 	{
 		%b = %obj.createBrick(%pass, %client, %overideClient);
 		if (isObject(%set))
@@ -635,7 +655,7 @@ function virtualBrickList::asyncCreateBricks(%obj, %client, %overideClient, %cal
 		%times++;
 		%pass++;
 	}
-	if (%pass < %obj.numBricks)
+	if (%pass < %obj.getCount())
 	{
 		%obj.asyncCreate = %obj.schedule(33, "asyncCreateBricks", %client, %overideClient, %callback, %pass, %set);
 	}
@@ -854,7 +874,7 @@ function virtualBrickList::loadBLIDBricks(%obj, %id)
 
 function virtualBrickList::addVBL(%obj, %vbl)
 {
-	for (%i = 0; %i < %vbl.numBricks; %i++)
+	for (%i = 0; %i < %vbl.getCount(); %i++)
 	{
 		%obj.addBrick(%vbl.getDatablock(%i), 
 		%vbl.getPosition(%i), 
@@ -1180,7 +1200,7 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 	%cy = getWord(%cpos, 1);
 	%cz = getWord(%cpos, 2);
 	%obj.resetSize();
-	for (%i = 0; %i < %obj.numBricks; %i++)
+	for (%i = 0; %i < %obj.getCount(); %i++)
 	{
 		//%pos = %obj.virBricks[%i, 1];
 		%pos = %obj.getPosition(%i);
@@ -1235,7 +1255,7 @@ function virtualBrickList::rotateBricksCCW(%obj, %times)
 	%cy = getWord(%cpos, 1);
 	%cz = getWord(%cpos, 2);
 	%obj.resetSize();
-	for (%i = 0; %i < %obj.numBricks; %i++)
+	for (%i = 0; %i < %obj.getCount(); %i++)
 	{
 		//%pos = %obj.virBricks[%i, 1];
 		%pos = %obj.getPosition(%i);
@@ -1363,7 +1383,7 @@ function virtualBrickList::resetSize(%obj)
 
 function virtualBrickList::getCount(%obj)
 {
-	return %obj.numBricks;
+	return %obj.vBricks.getCount();
 }
 
 function virtualBrickList::getNorthFace(%obj)

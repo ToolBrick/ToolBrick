@@ -23,7 +23,7 @@ function ServerCmdTestVblCount(%client)
 {
 	if (%client.isAdmin)
 	{
-		messageClient(%client, '', %client.testVbl.numBricks);
+		messageClient(%client, '', %client.testVbl.getCount());
 	}
 }
 
