@@ -1205,16 +1205,23 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 		%z = getWord(%pos, 2);
 		%ux = %x - %cx;
 		%uy = %y - %cy;
+		
+		//rotation variable is so the setter method isn't continuously called
+		%rot = %obj.getAngleId(%i);
+		
 		for (%d = 0; %d < %times; %d++)
 		{
 			%tx = %ux;
 			%ux = %uy;
 			%uy = %tx;
 			%uy = -%uy;
-			%obj.virBricks[%i, 2]++;
+			%rot++;
 		}
-		while (%obj.virBricks[%i, 2] > 3)
-			%obj.virBricks[%i, 2] -= 4;
+		while (%rot > 3)
+			%rot -= 4;
+		
+		%obj.setAngleId(%i, %rot);
+		
 		%obj.setPosition(%i, %ux + %cx SPC %uy + %cy SPC %z);
 		//now give custom save properties a chance to change
 		for (%c = 0; %c < $numCustSaves; %c++)
@@ -1253,16 +1260,23 @@ function virtualBrickList::rotateBricksCCW(%obj, %times)
 		%z = getWord(%pos, 2);
 		%ux = %x - %cx;
 		%uy = %y - %cy;
+		
+		//rotation variable is so the setter method isn't continuously called
+		%rot = %obj.getAngleId(%i);
+		
 		for (%d = 0; %d < %times; %d++)
 		{
 			%tx = %ux;
 			%ux = %uy;
 			%uy = %tx;
 			%ux = -%ux;
-			%obj.virBricks[%i, 2]--;
+			%rot--;
 		}
-		while (%obj.virBricks[%i, 2] < 0)
-			%obj.virBricks[%i, 2] += 4;
+		while (%rot < 0)
+			%rot += 4;
+			
+		%obj.setAngleId(%i, %rot);
+		
 		%obj.setPosition(%i, %ux + %cx SPC %uy + %cy SPC %z);
 		//now give custom save properties a chance to change
 		for (%c = 0; %c < $numCustSaves; %c++)
@@ -1614,7 +1628,7 @@ function VirtualBrickList::getPrintName(%obj, %num)
 {
 	if(%obj.getDataBlock(%num).subCategory $= "Prints")
 	{
-		%texture = getPrintTexture(%obj.virBricks[%num, 5]);
+		%texture = getPrintTexture(%obj.getPrint(%num, 5));
 		%path = filePath(%texture);
 		%underscorePos = strPos(%path, "_");
 		%name = getSubStr(%path, %underscorePos + 1, strPos(%path, "_", 14) - 14) @ "/" @ fileBase(%texture);
