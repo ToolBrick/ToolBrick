@@ -11,7 +11,7 @@ function VirtualBrick::onAdd(%this, %obj)
 
 function VirtualBrick::getDatablock(%obj)
 {
-	return %obj.datablock;
+	return %obj.db;
 }
 function VirtualBrick::getPosition(%obj)
 {
@@ -117,7 +117,7 @@ function VirtualBrick::isRendering(%obj)
 
 function VirtualBrick::setDatablock(%obj, %db)
 {
-	%obj.datablock = %db;
+	%obj.db = %db;
 }
 function VirtualBrick::setPosition(%obj, %pos) //takes into account the offset
 {
