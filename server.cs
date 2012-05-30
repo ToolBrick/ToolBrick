@@ -1,4 +1,5 @@
 exec("./base/Script_BrickCoordinates.cs");
+exec("./base/Script_VirtualBrick.cs");
 exec("./base/Script_VirtualBrickList.cs");
 exec("./base/Script_RealBrickList.cs");
 exec("./base/Script_BrickManipulation.cs");
