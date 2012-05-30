@@ -1151,23 +1151,6 @@ function virtualBrickList::recenter(%obj, %pos)
 
 function virtualBrickList::getCenter(%obj)
 {
-	// for (%i = 0; %i < %obj.numBricks; %i++)
-	// {
-		// %pos = %obj.virBricks[%i, 1];
-		// %x = getWord(%pos, 0);
-		// %y = getWord(%pos, 1);
-		// %z = getWord(%pos, 2);
-		// if (%maxX $= "" || %maxX < %x) %maxX = %x;
-		// if (%maxY $= "" || %maxY < %y) %maxY = %y;
-		// if (%maxZ $= "" || %maxZ < %z) %maxZ = %z;
-		// if (%minX $= "" || %minX > %x) %minX = %x;
-		// if (%minY $= "" || %minY > %y) %minY = %y;
-		// if (%minZ $= "" || %minZ > %z) %minZ = %z;
-	// }
-	// %centX = ((%maxX - %minX) / 2) + %minX;
-	// %centY = ((%maxY - %minY) / 2) + %minY;
-	// %centZ = ((%maxZ - %minZ) / 2) + %minZ;
-	// return %centX SPC %centY SPC %centZ;
 	%centX = ((%obj.maxX - %obj.minX) / 2) + %obj.minX;
 	%centY = ((%obj.maxY - %obj.minY) / 2) + %obj.minY;
 	%centZ = ((%obj.maxZ - %obj.minZ) / 2) + %obj.minZ;
