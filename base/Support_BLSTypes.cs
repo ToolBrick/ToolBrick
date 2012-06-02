@@ -10,31 +10,25 @@
 
 addCustSave("OWNER");
 
-function virtualBrickList::cs_addReal_OWNER(%obj, %num, %b)
+function virtualBrickList::cs_addReal_OWNER(%obj, %vb, %b)
 {
 	if (%b.getGroup().bl_id !$= "")
-		%obj.virBricks[%num, "OWNER"] = %b.getGroup().bl_id;
+		%vb.props["OWNER"] = %b.getGroup().bl_id;
 	else
-		%obj.virBricks[%num, "OWNER"] = "";
+		%vb.props["OWNER"] = "";
 }
 
-function virtualBrickList::cs_create_OWNER(%obj, %num, %b)
+function virtualBrickList::cs_create_OWNER(%obj, %vb, %b)
 {
-	if (%obj.virBricks[%num, "OWNER"] $= "")
+	if (%vb.props["OWNER"] $= "")
 		return;
-	%brickGroupName = "BrickGroup_" @ %obj.virBricks[%num, "OWNER"];
+	%brickGroupName = "BrickGroup_" @ %vb.props["OWNER"];
 	if (!isObject(%brickGroupName))
 	{
 		new SimGroup(%brickGroupName);
 		%brickGroup = %brickGroupName.getId();
-		%brickGroup.bl_id = %obj.virBricks[%num, "OWNER"];
-		%brickGroup.name = "BL_ID:" SPC %obj.virBricks[%num, "OWNER"];
-		//%idClient = findClientByBlId(%obj.virBricks[%i, "OWNER"]); //wait, if the group isn't created, the client must not be here!
-		//if (isObject(%idClient))
-		//{
-		//	%brickGroup.client = %idClient;
-		//	%brickGroup.name = %idClient.name;
-		//}
+		%brickGroup.bl_id = %vb.props["OWNER"];
+		%brickGroup.name = "BL_ID:" SPC %vb.props["OWNER"];
 		mainBrickGroup.add(%brickGroup);
 	}
 	%brickGroup = %brickGroupName.getId();
@@ -43,96 +37,96 @@ function virtualBrickList::cs_create_OWNER(%obj, %num, %b)
 	%b.stackBL_ID = %brickGroup.bl_id;
 }
 
-function virtualBrickList::cs_save_OWNER(%obj, %num, %file)
+function virtualBrickList::cs_save_OWNER(%obj, %vb, %file)
 {
-	if (%obj.virBricks[%num, "OWNER"] !$= "")
-		%file.writeLine("+-OWNER " @ %obj.virBricks[%num, "OWNER"]);
+	if (%vb.props["OWNER"] !$= "")
+		%file.writeLine("+-OWNER " @ %vb.props["OWNER"]);
 }
 
-function virtualBrickList::cs_load_OWNER(%obj, %num, %addData, %addInfo, %addArgs)
+function virtualBrickList::cs_load_OWNER(%obj, %vb, %addData, %addInfo, %addArgs)
 {
-	%obj.virBricks[%num, "OWNER"] = %addInfo;
+	%vb.props["OWNER"] = %addInfo;
 }
 
 addCustSave("NTOBJECTNAME");
-function virtualBrickList::cs_addReal_NTOBJECTNAME(%obj, %num, %brick)
+function virtualBrickList::cs_addReal_NTOBJECTNAME(%obj, %vb, %brick)
 {
-	if (strLen(%brick.getName()) > 0) %obj.virBricks[%num, "NTOBJECTNAME"] = %brick.getName();
-	else %obj.virBricks[%num, "NTOBJECTNAME"] = "";
+	if (strLen(%brick.getName()) > 0) %vb.props["NTOBJECTNAME"] = %brick.getName();
+	else %vb.props["NTOBJECTNAME"] = "";
 }
 
-function virtualBrickList::cs_create_NTOBJECTNAME(%obj, %num, %brick)
+function virtualBrickList::cs_create_NTOBJECTNAME(%obj, %vb, %brick)
 {
-	if (strLen(%obj.virBricks[%num, "NTOBJECTNAME"]) > 0)
+	if (strLen(%vb.props["NTOBJECTNAME"]) > 0)
 	{
-		%brick.setNTObjectName(%obj.virBricks[%num, "NTOBJECTNAME"]);
+		%brick.setNTObjectName(%vb.props["NTOBJECTNAME"]);
 	}
 }
 
-function virtualBrickList::cs_save_NTOBJECTNAME(%obj, %num, %file)
+function virtualBrickList::cs_save_NTOBJECTNAME(%obj, %vb, %file)
 {
-	if (strLen(%obj.virBricks[%num, "NTOBJECTNAME"]) > 0)
-		%file.writeLine("+-NTOBJECTNAME" SPC %obj.virBricks[%num, "NTOBJECTNAME"]);
+	if (strLen(%vb.props["NTOBJECTNAME"]) > 0)
+		%file.writeLine("+-NTOBJECTNAME" SPC %vb.props["NTOBJECTNAME"]);
 }
 
-function virtualBrickList::cs_load_NTOBJECTNAME(%obj, %num, %addData, %addInfo, %addArgs, %line)
+function virtualBrickList::cs_load_NTOBJECTNAME(%obj, %vb, %addData, %addInfo, %addArgs, %line)
 {
-	%obj.virBricks[%num, "NTOBJECTNAME"] = %addInfo;
+	%vb.props["NTOBJECTNAME"] = %addInfo;
 }
 
 addCustSave("EVENT");
-function virtualBrickList::cs_addReal_EVENT(%obj, %num, %brick)
+function virtualBrickList::cs_addReal_EVENT(%obj, %vb, %brick)
 {
 	if (%brick.numEvents)
 	{
-		%obj.virBricks[%num, "EVENT"] = %brick.numEvents;
+		%vb.props["EVENT"] = %brick.numEvents;
 		for (%i = 0; %i < %brick.numEvents; %i++)
 		{
-			%obj.virBricks[%num, "EVENT", "Delay", %i] = %brick.eventDelay[%i];
-			%obj.virBricks[%num, "EVENT", "Enabled", %i] = %brick.eventEnabled[%i];
-			%obj.virBricks[%num, "EVENT", "Input", %i] = %brick.eventInput[%i];
-			%obj.virBricks[%num, "EVENT", "InputIdx", %i] = %brick.eventInputIdx[%i];
-			%obj.virBricks[%num, "EVENT", "NT", %i] = %brick.eventNT[%i];
-			%obj.virBricks[%num, "EVENT", "Output", %i] = %brick.eventOutput[%i];
-			%obj.virBricks[%num, "EVENT", "OutputAppendClient", %i] = %brick.eventOutputAppendClient[%i];
-			%obj.virBricks[%num, "EVENT", "OutputIdx", %i] = %brick.eventOutputIdx[%i];
+			%vb.props["EVENT", "Delay", %i] = %brick.eventDelay[%i];
+			%vb.props["EVENT", "Enabled", %i] = %brick.eventEnabled[%i];
+			%vb.props["EVENT", "Input", %i] = %brick.eventInput[%i];
+			%vb.props["EVENT", "InputIdx", %i] = %brick.eventInputIdx[%i];
+			%vb.props["EVENT", "NT", %i] = %brick.eventNT[%i];
+			%vb.props["EVENT", "Output", %i] = %brick.eventOutput[%i];
+			%vb.props["EVENT", "OutputAppendClient", %i] = %brick.eventOutputAppendClient[%i];
+			%vb.props["EVENT", "OutputIdx", %i] = %brick.eventOutputIdx[%i];
 			for (%op = 1; %brick.eventOutputParameter[%i, %op] !$= ""; %op++)
-				%obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op] = %brick.eventOutputParameter[%i, %op];
-			%obj.virBricks[%num, "EVENT", "Target", %i] = %brick.eventTarget[%i];
-			%obj.virBricks[%num, "EVENT", "TargetIdx", %i] = %brick.eventTargetIdx[%i];
+				%vb.props["EVENT", "OutputParameter", %i, %op] = %brick.eventOutputParameter[%i, %op];
+			%vb.props["EVENT", "Target", %i] = %brick.eventTarget[%i];
+			%vb.props["EVENT", "TargetIdx", %i] = %brick.eventTargetIdx[%i];
 		}
 	}
-	else %obj.virBricks[%num, "EVENT"] = 0;
+	else %vb.props["EVENT"] = 0;
 }
 
-function virtualBrickList::cs_create_EVENT(%obj, %num, %brick)
+function virtualBrickList::cs_create_EVENT(%obj, %vb, %brick)
 {
-	for (%i = 0; %i < %obj.virBricks[%num, "EVENT"]; %i++)
+	for (%i = 0; %i < %vb.props["EVENT"]; %i++)
 	{
 		//I hate dealing with targets, lets get this over with first
 		//well I was going to only save the target and not the id but then I remembered
 		//this SO is also for easy access to brick properties, that wouldn't do!
-		///%target = %obj.virBricks[%num, "EVENT", "Target", %i];
+		///%target = %vb.props["EVENT", "Target", %i];
 		%targetIndex = %obj;
-		%brick.eventDelay[%i] = %obj.virBricks[%num, "EVENT", "Delay", %i];
-		%brick.eventEnabled[%i] = %obj.virBricks[%num, "EVENT", "Enabled", %i];
-		%brick.eventInput[%i] = %obj.virBricks[%num, "EVENT", "Input", %i];
-		%brick.eventInputIdx[%i] = %obj.virBricks[%num, "EVENT", "InputIdx", %i];
+		%brick.eventDelay[%i] = %vb.props["EVENT", "Delay", %i];
+		%brick.eventEnabled[%i] = %vb.props["EVENT", "Enabled", %i];
+		%brick.eventInput[%i] = %vb.props["EVENT", "Input", %i];
+		%brick.eventInputIdx[%i] = %vb.props["EVENT", "InputIdx", %i];
 		//%brick.eventInputIdx[%i] = inputEvent_GetInputEventIdx(%brick.eventInput);
-		%brick.eventNT[%i] = %obj.virBricks[%num, "EVENT", "NT", %i];
-		%brick.eventOutput[%i] = %obj.virBricks[%num, "EVENT", "Output", %i];
-		%brick.eventOutputAppendClient[%i] = %obj.virBricks[%num, "EVENT", "OutputAppendClient", %i];
-		%brick.eventOutputIdx[%i] = %obj.virBricks[%num, "EVENT", "OutputIdx", %i];
+		%brick.eventNT[%i] = %vb.props["EVENT", "NT", %i];
+		%brick.eventOutput[%i] = %vb.props["EVENT", "Output", %i];
+		%brick.eventOutputAppendClient[%i] = %vb.props["EVENT", "OutputAppendClient", %i];
+		%brick.eventOutputIdx[%i] = %vb.props["EVENT", "OutputIdx", %i];
 		//%brick.eventOutputIdx = outputEvent_GetOutputEventIdx(%brick.eventOutput);
-		for (%op = 1; %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op] !$= ""; %op++)
-			%brick.eventOutputParameter[%i, %op] = %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op];
-		%brick.eventTarget[%i] = %obj.virBricks[%num, "EVENT", "Target", %i];
-		%brick.eventTargetIdx[%i] = %obj.virBricks[%num, "EVENT", "TargetIdx", %i];
-		%brick.numEvents = %obj.virBricks[%num, "EVENT"];
+		for (%op = 1; %vb.props["EVENT", "OutputParameter", %i, %op] !$= ""; %op++)
+			%brick.eventOutputParameter[%i, %op] = %vb.props["EVENT", "OutputParameter", %i, %op];
+		%brick.eventTarget[%i] = %vb.props["EVENT", "Target", %i];
+		%brick.eventTargetIdx[%i] = %vb.props["EVENT", "TargetIdx", %i];
+		%brick.numEvents = %vb.props["EVENT"];
 	}
 }
 
-function virtualBrickList::cs_rotateCW_Event(%obj, %num, %times)
+function virtualBrickList::cs_rotateCW_Event(%obj, %vb, %times)
 {
 	//is it a good idea to declare constants inside a function called multiple times?
 	//this will probably be switched to some globals
@@ -144,19 +138,19 @@ function virtualBrickList::cs_rotateCW_Event(%obj, %num, %times)
 	%relayNames[2] = "fireRelayEast";
 	%relayNames[3] = "fireRelaySouth";
 	%relayNames[4] = "fireRelayWest";
-	for (%i = 0; %i < %obj.virBricks[%num, "EVENT"]; %i++)
+	for (%i = 0; %i < %vb.props["EVENT"]; %i++)
 	{
-		%relayNum = %relays[%obj.virBricks[%num, "EVENT", "Output", %i]];
+		%relayNum = %relays[%vb.props["EVENT", "Output", %i]];
 		if (%relayNum)
 		{
 			%relayNum += %times;
 			while (%relayNum > 4) %relayNum -= 4;
-			%obj.virBricks[%num, "EVENT", "Output", %i] = %relayNames[%relayNum];
-			%obj.virBricks[%num, "EVENT", "OutputIdx", %i] = outputEvent_GetOutputEventIdx("fxDTSBrick", %relayNames[%relayNum]); //relays are fxdtsbrick stuff
+			%vb.props["EVENT", "Output", %i] = %relayNames[%relayNum];
+			%vb.props["EVENT", "OutputIdx", %i] = outputEvent_GetOutputEventIdx("fxDTSBrick", %relayNames[%relayNum]); //relays are fxdtsbrick stuff
 		}
-		%paras = $OutputEvent_parameterList[inputEvent_getTargetClass("fxDTSBrick"), %obj.virBricks[%num, "EVENT", "OutputIdx", %i]];
-		%paraCount = %obj.virBricks[%num, "EVENT", "OutputIdx", %i];//can't we just do getFieldCount()? using this because it's here
-		outputEvent_GetNumParametersFromIdx(%targetClass, %obj.virBricks); //now check the event's output parameters for the vector type It'd be nice if there was a more efficient way than search for every brick every rotation
+		%paras = $OutputEvent_parameterList[inputEvent_getTargetClass("fxDTSBrick"), %vb.props["EVENT", "OutputIdx", %i]];
+		%paraCount = %vb.props["EVENT", "OutputIdx", %i];//can't we just do getFieldCount()? using this because it's here
+		outputEvent_GetNumParametersFromIdx(%targetClass, %CHANGE_ME); //now check the event's output parameters for the vector type It'd be nice if there was a more efficient way than search for every brick every rotation
 		for (%t = 0; %t < %times; %t++)
 		{
 			
@@ -164,45 +158,45 @@ function virtualBrickList::cs_rotateCW_Event(%obj, %num, %times)
 	}
 }
 
-function virtualBrickList::cs_rotateCCW_Event(%obj, %num, %times)
+function virtualBrickList::cs_rotateCCW_Event(%obj, %vb, %times)
 {
 }
 
-function virtualBrickList::cs_save_EVENT(%obj, %num, %file)
+function virtualBrickList::cs_save_EVENT(%obj, %vb, %file)
 {
-	for (%i = 0; %i < %obj.virBricks[%num, "EVENT"]; %i++)
+	for (%i = 0; %i < %vb.props["EVENT"]; %i++)
 	{
-		%targets = $Input["Event", "TargetListfxDTSBrick",  %obj.virBricks[%num, "EVENT", "TargetIdx", %i]];
-		%target = getWord(getField(%targets, %obj.virBricks[%num, "EVENT", "TargetIdx", %i]), 1);
-		%paraList = $Output["Event", "parameterList" @ %target, %obj.virBricks[%num, "EVENT", "OutputIdx", %i]];
+		%targets = $Input["Event", "TargetListfxDTSBrick",  %vb.props["EVENT", "TargetIdx", %i]];
+		%target = getWord(getField(%targets, %vb.props["EVENT", "TargetIdx", %i]), 1);
+		%paraList = $Output["Event", "parameterList" @ %target, %vb.props["EVENT", "OutputIdx", %i]];
 		%outputParameters = "";
-		for (%op = 1; %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op] !$= ""; %op++)
+		for (%op = 1; %vb.props["EVENT", "OutputParameter", %i, %op] !$= ""; %op++)
 		{
-			if (%obj.virBricks[%num, "EVENT", "TargetIdx", %i] == -1)
+			if (%vb.props["EVENT", "TargetIdx", %i] == -1)
 				%outputClass = "fxDTSBrick";
 			else
-				%outputClass = inputEvent_GetTargetClass("fxDtsBrick", %obj.virBricks[%num, "EVENT", "InputIdx", %i], %obj.virBricks[%num, "EVENT", "TargetIdx", %i]);
+				%outputClass = inputEvent_GetTargetClass("fxDtsBrick", %vb.props["EVENT", "InputIdx", %i], %vb.props["EVENT", "TargetIdx", %i]);
 			
-			%param = %obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op];
+			%param = %vb.props["EVENT", "OutputParameter", %i, %op];
 			
-			if (isObject(%param) && getWord(getField($OutputEvent_parameterList[%outputClass, %obj.virBricks[%num, "EVENT", "OutputIdx", %i]], %op - 1), 0) $= "dataBlock")
+			if (isObject(%param) && getWord(getField($OutputEvent_parameterList[%outputClass, %vb.props["EVENT", "OutputIdx", %i]], %op - 1), 0) $= "dataBlock")
 				%param = %param.getName();
 			
 			%outputParameters = %outputParameters @ %param @ "\t";
 		}
 		%file.writeLine("+-EVENT" TAB
 		%i TAB
-		%obj.virBricks[%num, "EVENT", "Enabled", %i] TAB
-		%obj.virBricks[%num, "EVENT", "Input", %i] TAB
-		%obj.virBricks[%num, "EVENT", "Delay", %i] TAB
-		%obj.virBricks[%num, "EVENT", "Target", %i] TAB
-		%obj.virBricks[%num, "EVENT", "NT", %i] TAB
-		%obj.virBricks[%num, "EVENT", "Output", %i] TAB
+		%vb.props["EVENT", "Enabled", %i] TAB
+		%vb.props["EVENT", "Input", %i] TAB
+		%vb.props["EVENT", "Delay", %i] TAB
+		%vb.props["EVENT", "Target", %i] TAB
+		%vb.props["EVENT", "NT", %i] TAB
+		%vb.props["EVENT", "Output", %i] TAB
 		%outputParameters);
 	}
 }
 
-function virtualBrickList::cs_load_EVENT(%obj, %num, %addData, %addInfo, %addArgs, %line)
+function virtualBrickList::cs_load_EVENT(%obj, %vb, %addData, %addInfo, %addArgs, %line)
 {
 	//unnamed brick loading:
 	//+-EVENT^0^1^onActivate^0^Player^^AddVelocity^0 0 50	^^
@@ -214,8 +208,8 @@ function virtualBrickList::cs_load_EVENT(%obj, %num, %addData, %addInfo, %addArg
 	//+-EVENT^0^1^onPlayerTouch^34^Client^^CenterPrint^hello derp^2^^
 	
 	//should probably use getField(%line, 1) to determine this but whatever
-	%obj.virBricks[%num, "EVENT"]++;
-	%i = %obj.virBricks[%num, "EVENT"] - 1;
+	%vb.props["EVENT"]++;
+	%i = %vb.props["EVENT"] - 1;
 	
 	//$InputEvent_TargetList[class, eventId] - list of ReadableName -> ClassName for that event, separated by a space (this isn't needed I think)
 	//$InputEvent_Name[class, eventId]			 - name of input event
@@ -229,60 +223,60 @@ function virtualBrickList::cs_load_EVENT(%obj, %num, %addData, %addInfo, %addArg
 																								//more on this list on bl forums (space guy's topic), this isn't needed either
 																								//we can use this to autodetect when to rotate (vector data type)
 	
-	%obj.virBricks[%num, "EVENT", "Enabled", %i] = getField(%line, 2); //yes
-	%obj.virBricks[%num, "EVENT", "Delay", %i] = getField(%line, 4); //yes
-	%obj.virBricks[%num, "EVENT", "Input", %i] = getField(%line, 3); //yes
+	%vb.props["EVENT", "Enabled", %i] = getField(%line, 2); //yes
+	%vb.props["EVENT", "Delay", %i] = getField(%line, 4); //yes
+	%vb.props["EVENT", "Input", %i] = getField(%line, 3); //yes
 		
-	%obj.virBricks[%num, "EVENT", "InputIdx", %i] = inputEvent_GetInputEventIdx(%obj.virBricks[%num, "EVENT", "Input", %i]);
+	%vb.props["EVENT", "InputIdx", %i] = inputEvent_GetInputEventIdx(%vb.props["EVENT", "Input", %i]);
 
-	%obj.virBricks[%num, "EVENT", "Target", %i] = getField(%line, 5); //should be field 5
-	%obj.virBricks[%num, "EVENT", "TargetIdx", %i] = inputEvent_GetTargetIndex("fxDtsBrick", %obj.virBricks[%num, "EVENT", "InputIdx", %i], %obj.virBricks[%num, "EVENT", "Target", %i]);
+	%vb.props["EVENT", "Target", %i] = getField(%line, 5); //should be field 5
+	%vb.props["EVENT", "TargetIdx", %i] = inputEvent_GetTargetIndex("fxDtsBrick", %vb.props["EVENT", "InputIdx", %i], %vb.props["EVENT", "Target", %i]);
 
-	%obj.virBricks[%num, "EVENT", "NT", %i] = getField(%line, 6); //its possible this should be stripping the underscore
+	%vb.props["EVENT", "NT", %i] = getField(%line, 6); //its possible this should be stripping the underscore
 	
-	%obj.virBricks[%num, "EVENT", "Output", %i] = getField(%line, 7); //should be field 7
+	%vb.props["EVENT", "Output", %i] = getField(%line, 7); //should be field 7
 
-	if (%obj.virBricks[%num, "EVENT", "TargetIdx", %i] == -1)
+	if (%vb.props["EVENT", "TargetIdx", %i] == -1)
 		%outputClass = "fxDTSBrick";
 	else
-		%outputClass = inputEvent_GetTargetClass("fxDtsBrick", %obj.virBricks[%num, "EVENT", "InputIdx", %i], %obj.virBricks[%num, "EVENT", "TargetIdx", %i]);
-	%obj.virBricks[%num, "EVENT", "OutputIdx", %i] = outputEvent_GetOutputEventIdx(%outputClass, %obj.virBricks[%num, "EVENT", "Output", %i]);
+		%outputClass = inputEvent_GetTargetClass("fxDtsBrick", %vb.props["EVENT", "InputIdx", %i], %vb.props["EVENT", "TargetIdx", %i]);
+	%vb.props["EVENT", "OutputIdx", %i] = outputEvent_GetOutputEventIdx(%outputClass, %vb.props["EVENT", "Output", %i]);
 	
 	//look up in a table: $OutputEvent_AppendClient[class, outputIdx];
-	%obj.virBricks[%num, "EVENT", "OutputAppendClient", %i] = $OutputEvent_AppendClient[%outputClass, %obj.virBricks[%num, "EVENT", "OutputIdx", %i]];
+	%vb.props["EVENT", "OutputAppendClient", %i] = $OutputEvent_AppendClient[%outputClass, %vb.props["EVENT", "OutputIdx", %i]];
 	
 	//this works
 	for (%op = 8; %op < getFieldCount(%line); %op++) //starts in field 8
 	{
 		%param = getField(%line, %op);
 		
-		if (isObject(%param) && getWord(getField($OutputEvent_parameterList[%outputClass, %obj.virBricks[%num, "EVENT", "OutputIdx", %i]], %op - 1), 0) $= "dataBlock")
+		if (isObject(%param) && getWord(getField($OutputEvent_parameterList[%outputClass, %vb.props["EVENT", "OutputIdx", %i]], %op - 1), 0) $= "dataBlock")
 			%param = %param.getId();
 				
-		%obj.virBricks[%num, "EVENT", "OutputParameter", %i, %op - 7] = getField(%line, %op);
+		%vb.props["EVENT", "OutputParameter", %i, %op - 7] = getField(%line, %op);
 	}
 }
 
 addCustSave("noimport");
 
-function virtualBrickList::cs_addReal_noimport(%obj, %num, %brick)
+function virtualBrickList::cs_addReal_noimport(%obj, %vb, %brick)
 {
-	if (%brick.noImport) %obj.virBricks[%num, "noimport"] = 1;
-	else %obj.virBricks[%num, "noimport"] = 0;
+	if (%brick.noImport) %vb.props["noimport"] = 1;
+	else %vb.props["noimport"] = 0;
 }
 
-function virtualBrickList::cs_create_noimport(%obj, %num, %brick)
+function virtualBrickList::cs_create_noimport(%obj, %vb, %brick)
 {
-	if (%obj.virBricks[%num, "noimport"]) %brick.noImport = 1;
+	if (%vb.props["noimport"]) %brick.noImport = 1;
 }
 
-function virtualBrickList::cs_save_noimport(%obj, %num, %file)
+function virtualBrickList::cs_save_noimport(%obj, %vb, %file)
 {
-	if (%obj.virBricks[%num, "noimport"])
+	if (%vb.props["noimport"])
 		%file.writeLine("+-NOIMPORT " @ 1 @ "\"");
 }
 
-function virtualBrickList::cs_load_noimport(%obj, %num, %addData, %addInfo, %addArgs)
+function virtualBrickList::cs_load_noimport(%obj, %vb, %addData, %addInfo, %addArgs)
 {
-	%obj.virBricks[%num, "noimport"] = 1;
+	%vb.props["noimport"] = 1;
 }

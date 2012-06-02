@@ -57,44 +57,44 @@ function addCustSave(%pref)
 	$numCustSaves++;
 }
 
-function virtualBrickList::cs_addReal(%obj, %csName, %num, %brick)
+function virtualBrickList::cs_addReal(%obj, %csName, %vb, %brick)
 {
 	if (%csName $= "") return;
 	if ($custSavePrefs[%csName])
-		eval("%obj.cs_addReal_" @ %csName @ "(%num, %brick);");
+		eval("%obj.cs_addReal_" @ %csName @ "(%vb, %brick);");
 }
 
-function virtualBrickList::cs_create(%obj, %csName, %num, %brick)
+function virtualBrickList::cs_create(%obj, %csName, %vb, %brick)
 {
 	if (%csName $= "") return;
 	if ($custSavePrefs[%csName])
-		eval("%obj.cs_create_" @ %csName @ "(%num,  %brick);");
+		eval("%obj.cs_create_" @ %csName @ "(%vb,  %brick);");
 }
 
-function virtualBrickList::cs_rotateCW(%obj, %csName, %num, %times)
+function virtualBrickList::cs_rotateCW(%obj, %csName, %vb, %times)
 {
 	if (isFunction("virtualBrickList", "cs_rotateCW_" @ %csName))
-		eval("%obj.cs_rotateCW_" @ %csName @ "(%num, %times);");
+		eval("%obj.cs_rotateCW_" @ %csName @ "(%vb, %times);");
 }
 
-function virtualBrickList::cs_rotateCCW(%obj, %csName, %num, %times)
+function virtualBrickList::cs_rotateCCW(%obj, %csName, %vb, %times)
 {
 	if (isFunction("virtualBrickList", "cs_rotateCCW_" @ %csName))
-		eval("%obj.cs_rotateCCW_" @ %csName @ "(%num, %times);");
+		eval("%obj.cs_rotateCCW_" @ %csName @ "(%vb, %times);");
 }
 
-function virtualBrickList::cs_save(%obj, %csName, %num, %file)
+function virtualBrickList::cs_save(%obj, %csName, %vb, %file)
 {
 	if (%csName $= "") return;
 	if ($custSavePrefs[%csName])
-		eval("%obj.cs_save_" @ %csName @ "(%num,  %file);");
+		eval("%obj.cs_save_" @ %csName @ "(%vb,  %file);");
 }
 
-function virtualBrickList::cs_load(%obj, %csName, %num, %addData, %addInfo, %addArgs, %line)
+function virtualBrickList::cs_load(%obj, %csName, %vb, %addData, %addInfo, %addArgs, %line)
 {
 	if (%csName $= "") return;
 	if ($custSavePrefs[%csName])
-		eval("%obj.cs_load_" @ %csName @ "(%num,  %addData, %addInfo, %addArgs, %line);");
+		eval("%obj.cs_load_" @ %csName @ "(%vb,  %addData, %addInfo, %addArgs, %line);");
 }
 
 function virtualBrickList::getVirtualBrick(%obj, %num)
@@ -314,6 +314,7 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 			}
 			else if (getSubStr(%line, 0, 2) $= "+-" && %atbricks)// && strstr(%line, "\"") > 0)
 			{
+				%vb = %obj.getVirtualBrick(%curBrick);
 				%addType = getWord(%line, 0);
 				%addType = getSubStr(%addType, 2, strLen(%addType) - 2);
 				%addInStart = strLen(%addType) + 3;
@@ -384,7 +385,7 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 					}
 				}
 				else if ($custSavePrefs[%addType])
-					%obj.cs_load(%addType, %curBrick, %addData, %addInfo, %addArgs, %line);
+					%obj.cs_load(%addType, %vb, %addData, %addInfo, %addArgs, %line);
 			}
 			else if (%atBricks && %line $= "\tMarkers")
 			{
@@ -413,6 +414,7 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 	%file.writeLine("Linecount" SPC %obj.getCount());
 	for (%brickNum = 0; %brickNum < %obj.getCount(); %brickNum++)
 	{
+		%vb = %obj.getVirtualBrick(%brickNum);
 		%datablock = %obj.getDatablock(%brickNum);
 		%pos = %obj.getPosition(%brickNum);
 		%angleid = %obj.getAngleId(%brickNum);
@@ -439,8 +441,8 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 		for (%i = 0; %i < $numCustSaves; %i++)
 		{
 			%csName = $custSaves[%i, "name"];
-			if (%obj.virBricks[%brickNum, %csName] !$= "")
-				%obj.cs_save(%csName, %brickNum, %file);
+			if (%vb.props[%csName] !$= "")
+				%obj.cs_save(%csName, %vb, %file);
 		}
 	}
 	
@@ -686,10 +688,11 @@ function virtualBrickList::createGhostBrick(%obj, %i)
 
 function virtualBrickList::applyCustomSaves(%obj, %i, %b)
 {
+	%vb = %obj.getVirtualBrick(%i);
 	for (%cs = 0; %cs < $numCustSaves; %cs++)
 	{
 		%csName = $custSaves[%cs, "name"];
-		%obj.cs_create(%csName, %i, %b);
+		%obj.cs_create(%csName, %vb, %b);
 	}
 }
 
@@ -864,53 +867,54 @@ function virtualBrickList::addRealBrick(%obj, %b)
 {
 			//time to add the bricks! %obj, %datablock, %pos, %angleid, %isBaseplate, %color, %print, %colorfx, %shapefx
 			%num = %obj.addBrick(%b.getDataBlock(), %b.getPosition(), %b.getAngleId(), %b.isBaseplate(), %b.getColorId(), %b.getPrintId(), %b.getColorFxId(), %b.getShapeFxId(), %b.isRaycasting(), %b.isColliding(), %b.isRendering());
+			%vb = %obj.getVirtualBrick(%num);
 			//time for the special stuff
 			if (isObject(%b.emitter))
 			{
-				%obj.virBricks[%num, "Emitter"] = %b.emitter.emitter.getName();
-				%obj.virBricks[%num, "Emitter", 0] = %b.emitterDirection;
+				%vb.props["Emitter"] = %b.emitter.emitter.getName();
+				%vb.props["Emitter", 0] = %b.emitterDirection;
 			}
 			else
 			{
-				%obj.virBricks[%num, "Emitter"] = "";
-				%obj.virBricks[%num, "Emitter", 0] = "";
+				%vb.props["Emitter"] = "";
+				%vb.props["Emitter", 0] = "";
 			}
 			if (isObject(%b.light))
-				%obj.virBricks[%num, "Light"] = %b.light.getDataBlock().getName();
+				%vb.props["Light"] = %b.light.getDataBlock().getName();
 			else
 			{
-				%obj.virBricks[%num, "Light"] = "";
+				%vb.props["Light"] = "";
 			}
 
 			if (isObject(%b.item))
 			{
-				%obj.virBricks[%num, "Item"] = %b.item.getDataBlock().getName();
-				%obj.virBricks[%num, "Item", 0] = %b.itemDirection;
-				%obj.virBricks[%num, "Item", 1] = %b.itemPosition;
-				%obj.virBricks[%num, "Item", 2] = %b.itemRespawnTime;
+				%vb.props["Item"] = %b.item.getDataBlock().getName();
+				%vb.props["Item", 0] = %b.itemDirection;
+				%vb.props["Item", 1] = %b.itemPosition;
+				%vb.props["Item", 2] = %b.itemRespawnTime;
 			}
 			else
 			{
-				%obj.virBricks[%num, "Item"] = "";
-				%obj.virBricks[%num, "Item", 0] = "";
-				%obj.virBricks[%num, "Item", 1] = "";
-				%obj.virBricks[%num, "Item", 2] = "";
+				%vb.props["Item"] = "";
+				%vb.props["Item", 0] = "";
+				%vb.props["Item", 1] = "";
+				%vb.props["Item", 2] = "";
 			}
 			if (isObject(%b.vehicleDatablock))
 			{
-				%obj.virBricks[%num, "Vehicle"] = %b.vehicleDatablock;
-				if (isObject(%b.vehicle)) %obj.virBricks[%num, "Vehicle", 0] = 1;
-				else %obj.virBricks[%num, "Vehicle", 0] = 0;
+				%vb.props["Vehicle"] = %b.vehicleDatablock;
+				if (isObject(%b.vehicle)) %vb.props["Vehicle", 0] = 1;
+				else %vb.props["Vehicle", 0] = 0;
 			}
 			else
 			{
-				%obj.virBricks[%num, "Vehicle"] = "";
-				%obj.virBricks[%num, "Vehicle", 0] = 0;
+				%vb.props["Vehicle"] = "";
+				%vb.props["Vehicle", 0] = 0;
 			}
 			for (%i = 0; %i < $numCustSaves; %i++)
 			{
 				%csName = $custSaves[%i, "name"];
-				%obj.cs_addReal(%csName, %num, %b);
+				%obj.cs_addReal(%csName, %vb, %b);
 			}
 }
 
@@ -1188,11 +1192,12 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 		
 		%obj.setPosition(%i, %ux + %cx SPC %uy + %cy SPC %z);
 		//now give custom save properties a chance to change
+		%vb = %obj.getVirtualBrick(%i);
 		for (%c = 0; %c < $numCustSaves; %c++)
 		{
 			%csName = $custSaves[%c, "name"];
-			if (%obj.virBricks[%i, %csName] !$= "")
-				%obj.cs_rotateCW(%csName, %i, %times);
+			if (%vb.props[%csName] !$= "")
+				%obj.cs_rotateCW(%csName, %vb, %times);
 		}
 		%obj.onAddBasicData(%i);
 	}
@@ -1242,11 +1247,12 @@ function virtualBrickList::rotateBricksCCW(%obj, %times)
 		
 		%obj.setPosition(%i, %ux + %cx SPC %uy + %cy SPC %z);
 		//now give custom save properties a chance to change
+		%vb = %obj.getVirtualBrick(%i);
 		for (%c = 0; %c < $numCustSaves; %c++)
 		{
 			%csName = $custSaves[%c, "name"];
-			if (%obj.virBricks[%i, %csName] !$= "")
-				%obj.cs_rotateCCW(%csName, %i, %times);
+			if (%vb.props[%csName] !$= "")
+				%obj.cs_rotateCCW(%csName, %vb, %times);
 		}
 		%obj.onAddBasicData(%i);
 	}
