@@ -345,23 +345,23 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 					%addInfo = $uiNameTable_Emitters[%addData];
 					if (isObject(%addInfo))
 					{
-						%obj.virBricks[%curBrick, "Emitter"] = %addInfo;
-						%obj.virBricks[%curBrick, "Emitter", 0] = getWord(%addArgs, 0);
+						%vb.bProps["Emitter"] = %addInfo;
+						%vb.bProps["Emitter", 0] = getWord(%addArgs, 0);
 					}
 				}
 				else if (%addType $= "Light")
 				{
 					%addInfo = $uiNameTable_Lights[%addData];
 					if (isObject(%addInfo))
-						%obj.virBricks[%curBrick, "Light"] = %addInfo;
+						%vb.bProps["Light"] = %addInfo;
 				}
 				else if (%addType $= "Music")
 				{
 					%addInfo = $uiNameTable_Music[%addData];
 					if (isObject(%addInfo))
 					{
-						%obj.virBricks[%curBrick, "Music"] = %addInfo;
-						%obj.virBricks[%curBrick, "Music", 0] = getWord(%addArgs, 0);
+						%vb.bProps["Music"] = %addInfo;
+						%vb.bProps["Music", 0] = getWord(%addArgs, 0);
 					}
 				}
 				else if (%addType $= "Vehicle")
@@ -369,8 +369,8 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 					%addInfo = $uiNameTable_Vehicle[%addData];
 					if (isObject(%addInfo))
 					{
-						%obj.virBricks[%curBrick, "Vehicle"] = %addInfo;
-						%obj.virBricks[%curBrick, "Vehicle", 0] = getWord(%addArgs, 0);
+						%vb.bProps["Vehicle"] = %addInfo;
+						%vb.bProps["Vehicle", 0] = getWord(%addArgs, 0);
 					}
 				}
 				else if (%addType $= "Item")
@@ -378,10 +378,10 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 					%addInfo = $uiNameTable_Items[%addData];
 					if (isObject(%addInfo))
 					{
-						%obj.virBricks[%curBrick, "Item"] = %addInfo;
-						%obj.virBricks[%curBrick, "Item", 1] = getWord(%addArgs, 0);
-						%obj.virBricks[%curBrick, "Item", 0] = getWord(%addArgs, 1);
-						%obj.virBricks[%curBrick, "Item", 2] = getWord(%addArgs, 2);
+						%vb.bProps["Item"] = %addInfo;
+						%vb.bProps["Item", 1] = getWord(%addArgs, 0);
+						%vb.bProps["Item", 0] = getWord(%addArgs, 1);
+						%vb.bProps["Item", 2] = getWord(%addArgs, 2);
 					}
 				}
 				else if ($custSavePrefs[%addType])
@@ -428,16 +428,16 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 		%rendering = %obj.isRendering(%brickNum);
 		//brickUIname" position angleId isBaseplate color print colorfx shapefxraycasting collision rendering
 		%file.writeLine(%datablock.uiName @ "\"" SPC %pos SPC %angleid SPC %isBaseplate SPC %color - 1 SPC %print SPC %colorfx SPC %shapefx SPC %raycasting SPC %collision SPC %rendering);
-		if (%obj.virBricks[%brickNum, "Emitter"] !$= "")
-			%file.writeLine("+-EMITTER " @ %obj.virBricks[%brickNum, "Emitter"].uiName @ "\" " @ %obj.virBricks[%brickNum, "Emitter", 0]);
-		if (%obj.virBricks[%brickNum, "Light"] !$= "")
-			%file.writeLine("+-LIGHT " @ %obj.virBricks[%brickNum, "Light"].uiName @ "\"");
-		if (%obj.virBricks[%brickNum, "Music"] !$= "")
-			%file.writeLine("+-MUSIC " @ %obj.virBricks[%brickNum, "Music"].uiName @ "\" " @ %obj.virBricks[%brickNum, "Music", 0]);
-		if (%obj.virBricks[%brickNum, "Vehicle"] !$= "")
-			%file.writeLine("+-VEHICLE " @ %obj.virBricks[%brickNum, "Vehicle"].uiName @ "\" " @ %obj.virBricks[%brickNum, "Vehicle", 0]);
-		if (%obj.virBricks[%brickNum, "Item"] !$= "")
-			%file.writeLine("+-ITEM " @ %obj.virBricks[%brickNum, "Item"].uiName @ "\" " @ %obj.virBricks[%brickNum, "Item", 1] SPC %obj.virBricks[%brickNum, "Item", 0] SPC %obj.virBricks[%brickNum, "Item", 2]);
+		if (%vb.bProps["Emitter"] !$= "")
+			%file.writeLine("+-EMITTER " @ %vb.bProps["Emitter"].uiName @ "\" " @ %vb.bProps["Emitter", 0]);
+		if (%vb.bProps["Light"] !$= "")
+			%file.writeLine("+-LIGHT " @ %vb.bProps["Light"].uiName @ "\"");
+		if (%vb.bProps["Music"] !$= "")
+			%file.writeLine("+-MUSIC " @ %vb.bProps["Music"].uiName @ "\" " @ %vb.bProps["Music", 0]);
+		if (%vb.bProps["Vehicle"] !$= "")
+			%file.writeLine("+-VEHICLE " @ %vb.bProps["Vehicle"].uiName @ "\" " @ %vb.bProps["Vehicle", 0]);
+		if (%vb.bProps["Item"] !$= "")
+			%file.writeLine("+-ITEM " @ %vb.bProps["Item"].uiName @ "\" " @ %vb.bProps["Item", 1] SPC %vb.bProps["Item", 0] SPC %vb.bProps["Item", 2]);
 		for (%i = 0; %i < $numCustSaves; %i++)
 		{
 			%csName = $custSaves[%i, "name"];
@@ -698,27 +698,28 @@ function virtualBrickList::applyCustomSaves(%obj, %i, %b)
 
 function virtualBrickList::applyPlantedProperties(%obj, %i, %b)
 {
-	if (isObject(%obj.virBricks[%i, "Emitter"]))
+	%vb = %obj.getVirtualBrick(%i);
+	if (isObject(%vb.bProps["Emitter"]))
 	{
-		%b.setEmitter(%obj.virBricks[%i, "Emitter"]);
-		%b.setEmitterDirection(%obj.virBricks[%i, "Emitter", 0]);
+		%b.setEmitter(%vb.bProps["Emitter"]);
+		%b.setEmitterDirection(%vb.bProps["Emitter", 0]);
 	}
-	if (isObject(%obj.virBricks[%i, "Light"]))
-		%b.setLight(%obj.virBricks[%i, "Light"]);
-	if (isObject(%obj.virBricks[%i, "Music"]))
-		%b.setSound(%obj.virBricks[%i, "Music"]);
-	if (isObject(%obj.virBricks[%i, "Vehicle"]))
+	if (isObject(%vb.bProps["Light"]))
+		%b.setLight(%vb.bProps["Light"]);
+	if (isObject(%vb.bProps["Music"]))
+		%b.setSound(%vb.bProps["Music"]);
+	if (isObject(%vb.bProps["Vehicle"]))
 	{
-		%b.setVehicle(%obj.virBricks[%i, "Vehicle"]);
-		if (%obj.virBricks[%i, "Vehicle", 0] == 1)
+		%b.setVehicle(%vb.bProps["Vehicle"]);
+		if (%vb.bProps["Vehicle", 0] == 1)
 			%b.spawnVehicle();
 	}
-	if (isObject(%obj.virBricks[%i, "Item"]))
+	if (isObject(%vb.bProps["Item"]))
 	{
-		%b.setItem(%obj.virBricks[%i, "Item"]);
-		%b.setItemDirection(%obj.virBricks[%i, "Item", 0]);
-		%b.setItemPosition(%obj.virBricks[%i, "Item", 1]);
-		%b.setItemRespawnTime(%obj.virBricks[%i, "Item", 2]);
+		%b.setItem(%vb.bProps["Item"]);
+		%b.setItemDirection(%vb.bProps["Item", 0]);
+		%b.setItemPosition(%vb.bProps["Item", 1]);
+		%b.setItemRespawnTime(%vb.bProps["Item", 2]);
 	}
 }
 
