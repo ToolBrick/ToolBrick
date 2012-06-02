@@ -239,6 +239,11 @@ function virtualBrickList::addBrick(%obj, %datablock, %pos, %angleid, %isBasepla
 	return %obj.getCount() - 1;
 }
 
+function virtualBrickList::removeBrick(%obj, %i)
+{
+	%obj.vBricks.remove(%obj.vBricks.getObject(%i));
+}
+
 function virtualBrickList::getSizeX(%obj)
 {
 	return %obj.maxX - %obj.minX;
