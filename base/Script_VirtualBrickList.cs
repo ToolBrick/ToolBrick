@@ -1211,57 +1211,8 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 
 function virtualBrickList::rotateBricksCCW(%obj, %times)
 {
-	if (%times $= "") %times = 1;
-	%times %= 4;
-	if (!%times) return;
-	
-	//markers must be rotated before the bricks, because the center changes!
-	for (%i = 0; %i < %obj.markers.getCount(); %i++)
-	{
-		%obj.markers.getObject(%i).rotateCCW(%times);
-	}
-	
-	%cpos = %obj.getCenter();
-	%cx = getWord(%cpos, 0);
-	%cy = getWord(%cpos, 1);
-	%cz = getWord(%cpos, 2);
-	%obj.resetSize();
-	for (%i = 0; %i < %obj.getCount(); %i++)
-	{
-		%pos = %obj.getPosition(%i);
-		%x = getWord(%pos, 0);
-		%y = getWord(%pos, 1);
-		%z = getWord(%pos, 2);
-		%ux = %x - %cx;
-		%uy = %y - %cy;
-		
-		//rotation variable is so the setter method isn't continuously called
-		%rot = %obj.getAngleId(%i);
-		
-		for (%d = 0; %d < %times; %d++)
-		{
-			%tx = %ux;
-			%ux = %uy;
-			%uy = %tx;
-			%ux = -%ux;
-			%rot--;
-		}
-		while (%rot < 0)
-			%rot += 4;
-			
-		%obj.setAngleId(%i, %rot);
-		
-		%obj.setPosition(%i, %ux + %cx SPC %uy + %cy SPC %z);
-		//now give custom save properties a chance to change
-		%vb = %obj.getVirtualBrick(%i);
-		for (%c = 0; %c < $numCustSaves; %c++)
-		{
-			%csName = $custSaves[%c, "name"];
-			if (%vb.props[%csName] !$= "")
-				%obj.cs_rotateCCW(%csName, %vb, %times);
-		}
-		%obj.onAddBasicData(%i);
-	}
+	%cw = (4 - (%times % 4)) % 4;
+	%obj.rotateBricksCW(%cw);
 }
 
 function virtualBrickList::setAbsDirection(%obj, %direction)
