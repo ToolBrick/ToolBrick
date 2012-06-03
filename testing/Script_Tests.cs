@@ -20,3 +20,15 @@ function VBL_SaveLoadTest(%file)
 	%vbl.delete();
 	%vbl2.delete();
 }
+
+function VBL_LoadPlaceRotatePlace(%file)
+{
+	%vbl = newVBL();
+	%vbl.loadBLSFile(%file);
+	%vbl.createBricks();
+	
+	%vbl.shiftBricks("0 0" SPC %vbl.getSizeZ());
+	%vbl.rotateBricksCW(1);
+	%vbl.createBricks();
+	%vbl.delete();
+}

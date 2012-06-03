@@ -128,6 +128,7 @@ function virtualBrickList::cs_create_EVENT(%obj, %vb, %brick)
 
 function virtualBrickList::cs_rotateCW_Event(%obj, %vb, %times)
 {
+	%times %= 4;
 	//is it a good idea to declare constants inside a function called multiple times?
 	//this will probably be switched to some globals
 	%relays["fireRelayNorth"] = 1;
@@ -140,26 +141,52 @@ function virtualBrickList::cs_rotateCW_Event(%obj, %vb, %times)
 	%relayNames[4] = "fireRelayWest";
 	for (%i = 0; %i < %vb.props["EVENT"]; %i++)
 	{
+		%outputClass = %vb.props["EVENT", "TargetIdx", %i] == -1 ? "fxDtsBrick" : inputEvent_GetTargetClass("fxDtsBrick", %vb.props["EVENT", "InputIdx", %i], %vb.props["EVENT", "TargetIdx", %i]);
 		%relayNum = %relays[%vb.props["EVENT", "Output", %i]];
 		if (%relayNum)
 		{
 			%relayNum += %times;
-			while (%relayNum > 4) %relayNum -= 4;
+			%relayNum %= 4;
 			%vb.props["EVENT", "Output", %i] = %relayNames[%relayNum];
 			%vb.props["EVENT", "OutputIdx", %i] = outputEvent_GetOutputEventIdx("fxDTSBrick", %relayNames[%relayNum]); //relays are fxdtsbrick stuff
 		}
-		%paras = $OutputEvent_parameterList[inputEvent_getTargetClass("fxDTSBrick"), %vb.props["EVENT", "OutputIdx", %i]];
-		%paraCount = %vb.props["EVENT", "OutputIdx", %i];//can't we just do getFieldCount()? using this because it's here
-		outputEvent_GetNumParametersFromIdx(%targetClass, %CHANGE_ME); //now check the event's output parameters for the vector type It'd be nice if there was a more efficient way than search for every brick every rotation
-		for (%t = 0; %t < %times; %t++)
+		%paras = $OutputEvent_parameterList[%outputClass, %vb.props["EVENT", "OutputIdx", %i]];
+		%paraCount = getFieldCount(%paras);
+		
+		for (%f = 0; %f < %paraCount; %f++)
 		{
-			
+			%para = getField(%paras, %f);
+			%type = firstWord(%para);
+			if (%type $= "vector")
+				%vb.props["EVENT", "OutputParameter", %i, %f + 1] = rotateVector(%vb.props["EVENT", "OutputParameter", %i, %f + 1], %times);
 		}
 	}
 }
 
+function rotateVector(%vec, %amt)
+{
+	if(%amt == 0)
+	{
+		return %vec;
+	}
+	else if(%amt == 1)
+	{
+		return getWord(%vec, 1) SPC -getWord(%vec, 0) SPC getWord(%vec, 2);
+	}
+	else if(%amt == 2)
+	{
+		return -getWord(%vec, 0) SPC -getWord(%vec, 1) SPC getWord(%vec, 2);
+	}
+	else if(%amt == 3)
+	{
+		return -getWord(%vec, 1) SPC getWord(%vec, 0) SPC getWord(%vec, 2);
+	}
+}
+	
 function virtualBrickList::cs_rotateCCW_Event(%obj, %vb, %times)
 {
+	%cw = (4 - (%times % 4)) % 4;
+	%obj.cs_rotateCW_Event(%vb, %cw);
 }
 
 function virtualBrickList::cs_save_EVENT(%obj, %vb, %file)
