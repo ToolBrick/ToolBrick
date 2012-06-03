@@ -1156,15 +1156,18 @@ function virtualBrickList::getWorldBox(%obj)
 
 function virtualBrickList::rotateBricksCW(%obj, %times)
 {
-	if (%times $= "") %times = 1;
+	if (%times $= "")
+		%times = 1;
+	if (%times < 0)
+		%times = (4 - (mAbs(%times) % 4)) % 4;
 	%times %= 4;
-	if (!%times) return;
+	
+	if (!%times)
+		return;
 	
 	//markers must be rotated before the bricks, because the center changes!
 	for (%i = 0; %i < %obj.markers.getCount(); %i++)
-	{
 		%obj.markers.getObject(%i).rotateCW(%times);
-	}	
 
 	%cpos = %obj.getCenter();
 	%cx = getWord(%cpos, 0);
@@ -1206,7 +1209,22 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 				%obj.cs_rotateCW(%csName, %vb, %times);
 		}
 		%obj.onAddBasicData(%i);
+		%vb.bProps["Emitter", 0] = getNewItemDir(%vb.bProps["Emitter", 0], %times);
+		%vb.bProps["Item", 1] = getNewItemDir(%vb.bProps["Item", 1], %times);
+		%vb.bProps["Item", 0] = (%vb.bProps["Item", 1] + %times) % 4;
 	}
+}
+
+function getNewItemDir(%val, %times)
+{
+	if (%val >= 2)
+	{
+		%val -= 2;
+		%val = (%val + %times) % 4;
+		%val += 2;
+	}
+	
+	return %val;
 }
 
 function virtualBrickList::rotateBricksCCW(%obj, %times)
