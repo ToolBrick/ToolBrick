@@ -1394,7 +1394,7 @@ function virtualBrickList::addMarker(%obj, %name, %point, %pDir, %sDir)
 	}
 	else
 	{
-		if (%sDir == "")
+		if (%sDir $= "")
 		{
 			if (%pDir < 4)
 				%sDir = 4;

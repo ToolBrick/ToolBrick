@@ -41,11 +41,13 @@ function BlockFiller::indexBricks()
 //BlockFiller::fillSpace("-0.5 -130.5 34", "1 1 3").createBricks();
 //returns a vbl with bricks filling the given space at a given position
 //	The position is the bottom south/west corner of the space
+//NOTE: SPACE IS IN BRICK COORDINATES
 function BlockFiller::fillSpace(%pos, %space)
 {
 	%px = getWord(%pos, 0);
 	%py = getWord(%pos, 1);
 	%pz = getWord(%pos, 2);
+	
 	if (!isObject($BlockFiller::cache[%space]))
 	{
 		if (VectorLen(%space))
@@ -88,19 +90,19 @@ function BlockFiller::fillSpace(%pos, %space)
 					{
 						%maybeAdd = BlockFiller::fillSpace(%px + %x*0.5 SPC %py SPC %pz, %sx - %x SPC %sy SPC %z);
 						%add.addVBL(%maybeAdd);
-					//	%maybeAdd.delete();
+						//%maybeAdd.delete();
 					}
 					if (%sy - %y > 0) //create new north side
 					{
 						%maybeAdd = BlockFiller::fillSpace(%px SPC %py + %y*0.5 SPC %pz, %x SPC %sy - %y SPC %z);
 						%add.addVBL(%maybeAdd);
-					//	%maybeAdd.delete();
+						//%maybeAdd.delete();
 					}
 					if (%sz - %z > 0) //create new top side
 					{
 						%maybeAdd = BlockFiller::fillSpace(%px SPC %py SPC %pz + %z*0.2, %sx SPC %sy SPC %sz - %z);
 						%add.addVBL(%maybeAdd);
-					//	%maybeAdd.delete();
+						//%maybeAdd.delete();
 					}
 					
 					if (!isObject(%vbl))
@@ -130,6 +132,40 @@ function BlockFiller::fillSpace(%pos, %space)
 		%vbl.realign("down" SPC %pz);
 	}
 	return %vbl;
+}
+
+function BlockFiller::chunkFill(%pos, %space)
+{
+	echo(%pos SPC %space);
+	%maxX = getWord(%space, 0);
+	%maxY = getWord(%space, 1);
+	%maxZ = getWord(%space, 2);
+	
+	%chunks = newVBL();
+	
+	for (%x = 0; %x < %maxX; %x += 64)
+	{
+		for (%y = 0; %y < %maxY; %y += 64)
+		{
+			for (%z = 0; %z < %maxZ; %z += 160)
+			{
+				echo(%x SPC %y SPC %z SPC %maxX SPC %maxY SPC %maxZ);
+				%xSpace = ((64 > (%maxX - %x)) ? (%maxX - %x) : 64);
+				echo("called xspace" SPC %xSpace);
+				%ySpace = (64 > ((%maxY - %y)) ? (%maxY - %y) : 64);
+				echo("called yspace" SPC %ySpace);
+				%zSpace = (160 > ((%maxZ - %z)) ? (%maxZ - %z) : 160);
+				echo("called zspace" SPC %zSpace);
+				%cPos = VectorAdd(%pos, %x * 0.5 SPC %y * 0.5 SPC %z * 0.2);
+				echo("Calling Chunk: " @ %cPos SPC ":" SPC %xSpace SPC %ySpace SPC %zSpace);
+				%chunk = BlockFiller::fillSpace(%cPos, %xSpace SPC %ySpace SPC %zSpace);
+				
+				%chunks.addVBL(%chunk);
+			}
+		}
+	}
+	
+	return %chunks;
 }
 
 function BlockFiller::fill(%pos, %space)
@@ -194,7 +230,7 @@ package BlockFillerPackage
 			%client.vbl = newVBL();
 		if (%client.coolBuilding && isObject(%client.player) && isObject(%client.player.tempBrick) && !%client.player.tempBrick.isVblBase)
 		{
-			if (%client.cbn == "")
+			if (%client.cbn $= "")
 				%client.cbn = 0;
 			%tb = %client.player.tempBrick;
 			%pos = %tb.getPosition();
@@ -206,18 +242,18 @@ package BlockFillerPackage
 			%maxY = getWord(%box, 4);
 			%maxZ = getWord(%box, 5);
 			
-			if (%client.gCBMaxX == "" || %client.gCBMaxX < %maxX)
+			if (%client.gCBMaxX $= "" || %client.gCBMaxX < %maxX)
 				%client.gCBMaxX = %maxX;
-			if (%client.gCBMaxY == "" || %client.gCBMaxY < %maxY)
+			if (%client.gCBMaxY $= "" || %client.gCBMaxY < %maxY)
 				%client.gCBMaxY = %maxY;
-			if (%client.gCBMaxZ == "" || %client.gCBMaxZ < %maxZ)
+			if (%client.gCBMaxZ $= "" || %client.gCBMaxZ < %maxZ)
 				%client.gCBMaxZ = %maxZ;
 				
-			if (%client.gCBMinX == "" || %client.gCBMinX > %minX)
+			if (%client.gCBMinX $= "" || %client.gCBMinX > %minX)
 				%client.gCBMinX = %minX;
-			if (%client.gCBMinY == "" || %client.gCBMinY > %minY)
+			if (%client.gCBMinY $= "" || %client.gCBMinY > %minY)
 				%client.gCBMinY = %minY;
-			if (%client.gCBMinZ == "" || %client.gCBMinZ > %minZ)
+			if (%client.gCBMinZ $= "" || %client.gCBMinZ > %minZ)
 				%client.gCBMinZ = %minZ;
 			%client.cbn++;
 			if (%client.cbn >= 2)
@@ -226,7 +262,7 @@ package BlockFillerPackage
 				%by = (%client.gCBMaxY - %client.gCBMinY) / 0.5;
 				%bz = (%client.gCBMaxZ - %client.gCBMinZ) / 0.2;
 				
-				%client.vbl.addVBL(BlockFiller::fillSpace(%client.gCBMinX SPC %client.gCBMinY SPC %client.gCBMinZ, %bx SPC %by SPC %bz));
+				%client.vbl.addVBL(BlockFiller::chunkFill(%client.gCBMinX SPC %client.gCBMinY SPC %client.gCBMinZ, %bx SPC %by SPC %bz));
 				for (%c = 0; %c < %client.vbl.getCount(); %c++)
 					%client.vbl.setColorId(%c, %client.currentColor);
 				%client.vbl.createBricks(%client, %client);
