@@ -18,11 +18,12 @@ function BlockFiller::indexBricks()
 				%placed = false;
 				for (%j = $BlockFiller::numBricks; %j > 0; %j--)
 				{
-					$BlockFiller::bricks[%j + 1] = $BlockFiller::bricks[%j];
+					$BlockFiller::bricks[%j] = $BlockFiller::bricks[%j - 1];
 					if ($BlockFiller::bricks[%j-1].getVolume() < %vol)
 					{
 						$BlockFiller::bricks[%j] = %db;
 						%placed = true;
+						break;
 					}
 				}
 				if (!%placed)
@@ -38,7 +39,8 @@ function BlockFiller::indexBricks()
 //echo(BlockFiller::fillSpace("-2.5 59 0", "1 1 3"));
 //-0.5 -130.5 34
 //BlockFiller::fillSpace("-0.5 -130.5 34", "1 1 3").createBricks();
-//TODO: Make cache only work off size, not size and position
+//returns a vbl with bricks filling the given space at a given position
+//	The position is the bottom south/west corner of the space
 function BlockFiller::fillSpace(%pos, %space)
 {
 	%px = getWord(%pos, 0);
@@ -54,7 +56,7 @@ function BlockFiller::fillSpace(%pos, %space)
 			%sz = getWord(%space, 2);
 			
 			%tried = 0;
-			%i = $BlockFiller::numBricks - 1;
+			%i = $BlockFiller::numBricks - 1; //start from the largest bricks
 			%angleNum = 0;
 			while (%tried <  3 && %i >= 0)
 			{
@@ -163,6 +165,7 @@ function BlockFiller::fillCorners(%c1, %c2)
 	return BlockFiller::fill(%minX SPC %minY SPC %minZ, mAbs(%c1x-%c2x)+1 SPC mAbs(%c1y-%c2y)+1 SPC mAbs(%c1z-%c2z)+1);
 }
 
+//returns two boolean values (1 or 0) The first is if the brick with angleid 0 works, the other is true if an angleid of 1 works
 function fxDTSBrickData::fitsInSpace(%db, %space)
 {
 	%angles = "";
