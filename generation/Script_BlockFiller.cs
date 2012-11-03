@@ -5,7 +5,7 @@ function BlockFiller::indexBricks()
 	for (%i = 0; %i < DataBlockGroup.getCount(); %i++)
 	{
 		%db = DataBlockGroup.getObject(%i);
-		if (%db.getClassName() $= "fxDTSBrickData" && (%db.category $= "Bricks" || %db.category $= "Baseplates" || %db.category $= "Plates"))
+		if (%db.getClassName() $= "fxDTSBrickData" && !%db.isWaterBrick && (%db.category $= "Bricks" || %db.category $= "Baseplates" || %db.category $= "Plates"))
 		{
 			%vol = %db.getVolume();
 			if ($BlockFiller::numBricks == 0 || ($BlockFiller::bricks[$BlockFiller::numBricks - 1].getVolume() < %vol))
