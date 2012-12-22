@@ -269,7 +269,7 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 		%curLine = 0;
 		%atMarkers = 0;
 		while (!%file.isEOF())
-		{	
+		{
 			%line = %file.readLine();
 			%lines[%curLine] = %line;
 			if (%atMarkers)
@@ -872,7 +872,7 @@ function virtualBrickList::addSet(%obj, %set)
 function virtualBrickList::addRealBrick(%obj, %b)
 {
 			//time to add the bricks! %obj, %datablock, %pos, %angleid, %isBaseplate, %color, %print, %colorfx, %shapefx
-			%num = %obj.addBrick(%b.getDataBlock(), %b.getPosition(), %b.getAngleId(), %b.isBaseplate(), %b.getColorId(), %b.getPrintId(), %b.getColorFxId(), %b.getShapeFxId(), %b.isRaycasting(), %b.isColliding(), %b.isRendering());
+			%num = %obj.addBrick(%b.getDataBlock(), %b.getPosition(), %b.getAngleId(), %b.isBP(), %b.getColorId(), %b.getPrintId(), %b.getColorFxId(), %b.getShapeFxId(), %b.isRaycasting(), %b.isColliding(), %b.isRendering());
 			%vb = %obj.getVirtualBrick(%num);
 			//time for the special stuff
 			if (isObject(%b.emitter))

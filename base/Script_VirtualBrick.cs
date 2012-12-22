@@ -82,6 +82,10 @@ function VirtualBrick::getAngleId(%obj)
 {
 	return %obj.angleId;
 }
+function fxDTSBrick::isBP(%obj) //Can't make VirtualBrick::isBasePlate, so we need to make a method that works with fxDTSBrick
+{
+	return %obj.isBasePlate();
+}
 function VirtualBrick::isBP(%obj)
 {
 	return %obj.isBaseplate;
@@ -94,11 +98,23 @@ function VirtualBrick::getPrint(%obj)
 {
 	return %obj.printId;
 }
+function VirtualBrick::getPrintId(%obj)
+{
+	return %obj.printId;
+}
 function VirtualBrick::getColorFx(%obj)
 {
 	return %obj.colorFx;
 }
+function VirtualBrick::getColorFxId(%obj)
+{
+	return %obj.colorFx;
+}
 function VirtualBrick::getShapeFx(%obj)
+{
+	return %obj.shapeFx;
+}
+function VirtualBrick::getShapeFxId(%obj)
 {
 	return %obj.shapeFx;
 }

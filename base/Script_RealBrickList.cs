@@ -40,7 +40,7 @@ function RealBrickList::getAngleId(%obj, %num)
 }
 function RealBrickList::isBP(%obj, %num)
 {
-	return %obj.brickGroup.getObject(%num).isBasePlate();
+	return %obj.brickGroup.getObject(%num).isBP();
 }
 function RealBrickList::getColorId(%obj, %num)
 {
