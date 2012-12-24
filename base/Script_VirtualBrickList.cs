@@ -443,6 +443,7 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 			%file.writeLine("+-VEHICLE " @ %vb.bProps["Vehicle"].uiName @ "\" " @ %vb.bProps["Vehicle", 0]);
 		if (%vb.bProps["Item"] !$= "")
 			%file.writeLine("+-ITEM " @ %vb.bProps["Item"].uiName @ "\" " @ %vb.bProps["Item", 1] SPC %vb.bProps["Item", 0] SPC %vb.bProps["Item", 2]);
+		
 		for (%i = 0; %i < $numCustSaves; %i++)
 		{
 			%csName = $custSaves[%i, "name"];
@@ -1147,6 +1148,15 @@ function virtualBrickList::getCenter(%obj)
 	%centY = ((%obj.maxY - %obj.minY) / 2) + %obj.minY;
 	%centZ = ((%obj.maxZ - %obj.minZ) / 2) + %obj.minZ;
 	return %centX SPC %centY SPC %centZ;
+}
+
+function virtualBrickList::setCorner(%obj, %newCorner)
+{
+	%curCorner = %obj.minX SPC %obj.minY SPC %obj.minZ;
+	
+	%shift = VectorSub(%newCorner, %curCorner);
+	
+	%obj.shiftBricks(%shift);
 }
 
 function virtualBrickList::getWorldBox(%obj)
