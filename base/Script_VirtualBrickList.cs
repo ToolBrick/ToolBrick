@@ -791,9 +791,17 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 	}
 	else
 	{
-		ClientGroup.getObject(0).brickGroup.add(%b);
-		%b.client = ClientGroup.getObject(0);
-		%b.stackBL_ID = ClientGroup.getObject(0).bl_id;
+		if (ClientGroup.getCount() > 0)
+		{
+			ClientGroup.getObject(0).brickGroup.add(%b);
+			%b.client = ClientGroup.getObject(0);
+			%b.stackBL_ID = ClientGroup.getObject(0).bl_id;
+		}
+		else
+		{
+			BrickGroup_888888.add(%b);
+			%b.stackBL_ID = BrickGroup_888888.bl_id;
+		}
 	}
 
 	%b = %obj.standardPlantBrick(%i, %b);
