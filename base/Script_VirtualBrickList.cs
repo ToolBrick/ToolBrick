@@ -498,7 +498,7 @@ function virtualBrickList::createBricksForBlid(%obj, %blid)
 		class = "BrickFactory";
 		returnBrickSet = %obj.returnBrickSet;
 	};
-	%ret = %factory.createBricks(%obj, %blid);
+	%ret = %factory.createBricksForBlid(%obj, %blid);
 	%factory.delete();
 	return true;
 }
