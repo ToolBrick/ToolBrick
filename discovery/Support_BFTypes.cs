@@ -1,12 +1,10 @@
 function bfFindChainBricks(%searchBrick, %justFoundBricks)
 {
-	//echo("called" SPC %searchBrick);
 	if (isObject(%searchBrick))
 	{
 		for (%i = 0; %i < %searchBrick.getNumUpBricks(); %i++)
 		{
 			%brick = %searchBrick.getUpBrick(%i);
-			//echo(%brick);
 			%justFoundBricks.add(%brick);
 		}
 		for (%i = 0; %i < %searchBrick.getNumDownBricks(); %i++)

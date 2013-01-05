@@ -21,14 +21,14 @@ function HouseRoom::createBasicWall(%obj)
 		%nc = %obj.corners[%n];
 		%offset = VectorNormalize(VectorSub(%c, %nc));
 		%end = VectorAdd(%nc, %offset);
-		echo(%c SPC "::" SPC %nc);
+		
 		//bottom trim
 		%add = BlockFiller::fillCorners(%c, VectorAdd(%end, "0 0" SPC 2));
 		for (%col = 0; %col < %add.getCount(); %col++)
 			%add.setColorId(%col, %obj.color[1]);
 		%wallVBL.addVBL(%add);
 		//middle
-		echo("middle:" SPC VectorAdd(%c, "0 0" SPC 3) SPC VectorAdd(%end, "0 0" SPC %obj.height-4));
+		
 		%add = BlockFiller::fillCorners(VectorAdd(%c, "0 0" SPC 3), VectorAdd(%end, "0 0" SPC %obj.height-4));
 		for (%col = 0; %col < %add.getCount(); %col++)
 			%add.setColorId(%col, %obj.color[0]);

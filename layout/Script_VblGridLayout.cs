@@ -25,7 +25,6 @@ function VblGridLayout::setTile(%obj, %x, %y, %id)
 
 function VblGridLayout::export(%obj, %file)
 {
-	echo("the file is " @ %file);
 	%name = fileBase(%file);
 	%path = filePath(%file);
 	%f = new FileObject();
@@ -61,7 +60,6 @@ function VblGridLayout::import(%obj, %file)
 	%f.openForRead(%file);
 	
 	%line = %f.readLine();
-	echo(%line);
 	%obj.rows = getWord(%line, 0);
 	%obj.cols = getWord(%line, 1);
 	
@@ -88,7 +86,6 @@ function VblGridLayout::import(%obj, %file)
 
 function ServerCmdnewVblGrid(%client, %name)
 {
-	echo("do this");
 	%client.vblGrid = new ScriptObject()
 	{
 		class = "VblGridLayout";
@@ -163,7 +160,7 @@ package VblGridPackage
 	function virtualBrickList::onFinishAddingBuild(%obj, %bf)
 	{
 		Parent::onFinishAddingBuild(%bf);
-		//echo(%obj.client);
+		
 		if (%obj.isVblGrid)
 			%obj.client.vblGrid.addTile(%obj);
 		commandToClient(%obj.client, 'centerPrint', "\c3Added a tile.", 3);
@@ -220,7 +217,6 @@ function countGrid(%path)
 				%count++;
 		}
 	}
-	echo("rows: " @ %lineCount @ " cols: " @ %col @ " tiles: " @ %count);
 	%file.close();
 	%file.delete();
 }

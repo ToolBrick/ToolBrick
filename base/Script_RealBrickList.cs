@@ -83,10 +83,8 @@ function RealBrickList::addBrick(%obj, %brick)
 //brick manipulation stuff
 function RealBrickList::onAddBasicData(%obj, %num)
 {
-	//echo("got milk1" SPC %obj SPC %num);
 	if (!isObject(%obj.getDatablock(%num)))
 		return;
-	//	echo("got milk2");
 	//purpose of this function is to update the list's properties so
 	//width and length are always precalculated
 	//if angleId is 1 or 3, reverse x and y
@@ -185,7 +183,7 @@ function RealBrickList::getFace(%obj, %dir)
 		case 5:
 			%face = %obj.getBottomFace();
 	}
-	echo("in the realbricklist" SPC %face);
+	
 	return %face;
 }
 

@@ -5,7 +5,7 @@
 function brickFinder::onAdd(%obj)
 {
 	%obj.brickGroups = new SimSet();
-	%obj.finishCommand = "echo(\"set a finish command!\");";
+	%obj.finishCommand = "error(\"set a finish command!\");";
 }
 
 function brickFinder::onRemove(%obj)
@@ -45,7 +45,6 @@ function addBFType(%name, %funcName)
 //This method just sets up, actual searching is in another method so we can easily stretch out the search
 function brickFinder::search(%obj, %base, %findMethod, %includeTypes, %excludeTypes, %searchFromExcluded)
 {
-	echo("args:" SPC %base SPC ":" SPC %findMethod SPC ":" SPC %includeTypes SPC ":" SPC %excludeTypes SPC ":" SPC %searchFromExcluded);
 	%obj.cleanup();
 	if (!%base.getClassName() $= "fxDTSBrick")
 		return;
@@ -79,7 +78,6 @@ function brickFinder::search(%obj, %base, %findMethod, %includeTypes, %excludeTy
 	}
 	%obj.numIncTypes = %f - %numFakes;
 	%numFakes = 0;
-	echo("exclude ty[es!" SPC %excludeTypes);
 	for (%f = 0; %f < getFieldCount(%excludeTypes); %f++)
 	{
 		%field = getField(%excludeTypes, %f);
@@ -92,7 +90,6 @@ function brickFinder::search(%obj, %base, %findMethod, %includeTypes, %excludeTy
 		%idName = getWord(%field, 0);
 		%id = $BF::Types[%idName];
 		%evalString = $BF::TypeFunctions[%id] @ "(\t";
-		echo("exc done: " @ %obj.excTypes[%f] SPC %evalString);
 		for (%a = 1; %a < getWordCount(%field); %a++)
 		{
 			%evalString = %evalString @ ", \"" @ getWord(%field, %a) @ "\"";
@@ -131,10 +128,8 @@ function brickFinder::continueSearch(%obj)
 		{
 			%inspectedBricks++;
 			%sb = %obj.justFoundBricks.getObject(%obj.b);
-			//echo("hi!" SPC %obj.justFoundBricks.getCount() SPC %sb);
 			if (%obj.foundBricks.isMember(%sb))
 			{
-				//echo("OH NO!");
 				%obj.justFoundBricks.remove(%sb);
 				%obj.b--;
 				continue;
@@ -144,7 +139,6 @@ function brickFinder::continueSearch(%obj)
 			%change = false;
 			for (%et = 0; %et < %obj.numExcTypes; %et++)
 			{
-				echo("exc" SPC getField(%obj.excTypes[%et], 0) @ %sb @ getField(%obj.excTypes[%et], 1));
 				if (eval(getField(%obj.excTypes[%et], 0) @ %sb @ getField(%obj.excTypes[%et], 1)))
 				{
 					%obj.justFoundBricks.remove(%sb);
@@ -187,7 +181,6 @@ function brickFinder::continueSearch(%obj)
 		%now = getSimTime();
 		if (%inspectedBricks > 500)//%now - %startTime > 50)
 		{
-			echo(%now SPC %startTime);
 			%obj.findSchedule = %obj.schedule(100, "continueSearch");
 			return;
 		}
@@ -196,14 +189,13 @@ function brickFinder::continueSearch(%obj)
 	}
 	
 	//only get here when finished
-	//echo(%now SPC %startTime);
 	eval(%obj.finishCommand);
 	%obj.onFinish(%obj.foundBricks);
 }
 
 function brickFinder::onSelect(%obj, %brick)
 {
-	echo("tarasd");
+	
 }
 
 function brickFinder::onFinish(%obj, %brick)
@@ -269,8 +261,7 @@ function colorGroup(%off)
 	for (%g = 0; %g < bf.brickGroups.getCount(); %g++)
 	{
 		%group = bf.brickGroups.getObject(%g);
-		echo(%group.getCount());
-		echo(%group.id);
+		
 		for (%i = 0; %i < %group.getCount(); %i++)
 		{
 			%group.getObject(%i).setColor(%g + %off);
@@ -310,7 +301,7 @@ function ServerCmdAddMEF(%client, %typeId, %args)
 {
 	if (%client.manipNumEL $= "")
 		%client.manipNumEL = 0;
-	echo(%typeId SPC $BF::TypeNames[%typeId] SPC %args);
+	
 	%client.manipELs[%client.manipNumEL] = $BF::TypeNames[%typeId] SPC %args;
 	%client.manipNumEL++;
 }

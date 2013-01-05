@@ -82,8 +82,6 @@ function BlockManager3d::indexSpaces(%obj)
 			%y = %obj.nextOpenSpace(%x SPC %y SPC %z, 1);
 			while (%y != -1) //go through the row until an unindexed spot is found
 			{
-				//echo("now going to check:" SPC %x SPC %y SPC %z);
-				//echo(%x SPC %y SPC %z);
 				%length = 0;
 				%width = 0;
 				%height = 1; //oh dear, help me
@@ -102,7 +100,6 @@ function BlockManager3d::indexSpaces(%obj)
 					
 				%maxLength = %endY - %y;
 				%maxWidth = %endX - %x;
-				//echo("maxwidth: " @ %maxWidth);
 				//%ray = containerRayCast(%obj.getWorldPosition(%x SPC %y), %obj.getWorldPosition(%x SPC %endY), $TypeMasks::FxBrickAlwaysObjectType);
 				
 				//now interpret results to find what type of space to make, possibly its length
@@ -128,30 +125,22 @@ function BlockManager3d::indexSpaces(%obj)
 				while (%width < 1 || %length < 1)
 				{
 					%times++;
-					//echo("times:" SPC %times);
-					//echo("Type:" @ %type SPC "CurRow:" @ %curRow SPC "CurLength:" @ %curLength);
-					//echo("Width:" @ %width SPC "Length:" @ %length SPC "MaxLength:" @ %maxLength);
 					if (%times > 7000)
 					{
-						echo("had to stop");
 						return;
 					}
 					//do something different depending on if we are making an open or filled space
 					if (%type == $spaces["filled"])
 					{
-						//echo("filled" SPC %maxWidth SPC "w:"@%width SPC "l:" @ %length SPC "cl:" @ %curLength SPC "cr:" @ %curRow);
-						//echo("start: " @ %curRow);
 						//always start at a spot where we need to check further down the y dimension
 						//but if we don't know any bricks on this row yet, then we need to do a box check
 						if (%curLength < 1)
 						{
-							//echo("special check!" SPC %x + %curRow SPC %y SPC %z);
 							%brick = %obj.checkBrick(%x + %curRow SPC %y SPC %z);
 						}
 						else
 						{
 							//do a raycast on the y dimension
-							//echo("curlength:" @ %curLength SPC %length);
 							//%rayStart = %obj.getWorldPosition(%x + %curRow SPC %y + %curLength - 1 SPC %z); //start inside the last brick
 							//%rayEnd = %obj.getWorldPosition(%x + %curRow SPC %y + %curLength SPC %z); //end in the suspected spot
 							//%ray = containerRayCast(%rayStart, %rayEnd, $TypeMasks::FxBrickAlwaysObjectType, %brick);
@@ -163,17 +152,14 @@ function BlockManager3d::indexSpaces(%obj)
 							//if we found something, update our current length
 							%brickBox = %brick.getWorldBox();
 							%curLength += (getWord(%brickBox, %d2Id + 3) - getWord(%brickBox, %d2Id))*2;
-							//echo("curlength became:" @ %curLength);
 							if (%curLength >= %maxLength)
 							{
-								//echo("greater then max length" SPC %maxLength);
 								%curLength = %maxLength;
 								if (%length <= 0)
 									%length = %curLength;
 							}
 							if (%length > 0 && %curLength >= %length)
 							{
-								//echo("increment row!");
 								//time to move to the next row
 								%curLength = 0;
 								%curRow++;
@@ -183,7 +169,6 @@ function BlockManager3d::indexSpaces(%obj)
 						}
 						else
 						{
-						//echo("no brick :(");
 							//if we didn't find anything, our curLength is the max length for this row
 							//check it with the current length value or make it the length if necessary
 							if (%length <= 0)
@@ -202,11 +187,9 @@ function BlockManager3d::indexSpaces(%obj)
 								%width = %curRow;
 							}
 						}
-						//echo("end: " @ %curRow);
 					}
 					else
 					{
-						//echo("open" SPC %maxWidth SPC "w:"@%width SPC "l:" @ %length SPC "cl:" @ %curLength SPC "cr:" @ %curRow);
 						//at this point we just need to check this row for bricks
 						//always use a raycast
 						if (%length <= 0)
@@ -215,19 +198,16 @@ function BlockManager3d::indexSpaces(%obj)
 							%rayLength = %length - 1;
 						%rayStart = %obj.getWorldPosition(%x + %curRow SPC %y SPC %z); //start inside the last brick
 						%rayEnd = %obj.getWorldPosition(%x + %curRow SPC %y + %rayLength SPC %z); //end in the suspected spot
-						//echo("RayStart:" @ %rayStart SPC "rayEnd:" @ %rayEnd);
+						
 						%ray = containerRayCast(%rayStart, %rayEnd, $TypeMasks::FxBrickAlwaysObjectType, %brick);
 						%brick = getWord(%ray, 0);
 						if (isObject(%brick))
 						{
-							//echo("found this brick: " @ %brick);
 							if (%curRow <= 0)
 							{
 								//if this is the first row, then we now have the length of this space
 								%brickBox = %brick.getWorldBox();
 								%radius = $dimensionScale[getWord(%obj.dimensions, 1)]/2;
-								//echo("DEBUG: curLength: " SPC %d2Id);
-								//echo("DEBUG2: curLength:" @getWord(%obj.getWorldPosition(%x + %curRow SPC %y SPC %z), %d2Id));
 								%curLength = ((getWord(%brickBox, %d2Id) + %radius) - getWord(%obj.getWorldPosition(%x + %curRow SPC %y SPC %z), %d2Id))*2; //first brick stud - start of row, convert to brick units
 								%length = %curLength;
 								
@@ -259,7 +239,6 @@ function BlockManager3d::indexSpaces(%obj)
 					if (%x + %curRow > %obj.width)
 						%width = %curRow;
 				}
-				//echo("width:" @ %width SPC "length:" @ %length);
 				//now we need to find the height
 				%brick = "";
 				%height = 0;
@@ -274,7 +253,6 @@ function BlockManager3d::indexSpaces(%obj)
 							for (%scanY = 0; (%scanY < %length && isObject(%brick)); %scanY++)
 							{
 								%brick = %obj.checkBrick(%x + %scanX SPC %y + %scanY SPC %z + %height);
-								//echo("brick check:" @ %brick SPC %x + %scanX SPC %y + %scanY SPC %z + %height);
 							}
 						}
 					}
@@ -288,9 +266,7 @@ function BlockManager3d::indexSpaces(%obj)
 						%height++;
 						%scanCenter = VectorAdd(%obj.getWorldPosition(%x + %width - 1 SPC %y + %length - 1 SPC %z + %height), %obj.getWorldPosition(%x SPC %y SPC %z + %height));
 						%scanCenter = VectorScale(%scanCenter, 0.5);
-						//echo("scanCenter:" @ %scanCenter SPC %width*%d1Scale SPC %length*%d2Scale SPC %d3Scale/2);
 						initContainerBoxSearch(%scanCenter, %width*%d1Scale-%d1Scale SPC %length*%d2Scale-%d2Scale SPC %d3Scale/2, $TypeMasks::FxBrickAlwaysObjectType); //this is hard coded to only work with x y z
-						//echo("scancenter:" SPC %scanCenter);
 						%brick = containerSearchNext();
 					}
 				}
@@ -307,7 +283,6 @@ function BlockManager3d::indexSpaces(%obj)
 //basically, only reset variables once done using them, that way it's easy to pick this back up
 function BlockManager3d::asyncIndexSpaces(%obj, %callback)
 {
-	//echo("running async");
 	//constants
 	%dx = $dimensions[getWord(%obj.dimensions, 0)];
 	%dxId = $dimensionIds[getWord(%obj.dimensions, 0)];
@@ -329,19 +304,16 @@ function BlockManager3d::asyncIndexSpaces(%obj, %callback)
 	{
 		while (!%obj.paused && %obj.x < %width)
 		{
-			//echo("objx: " @ %obj.x);
 			while (!%obj.paused && (%obj.y = %obj.nextOpenSpace(%obj.x SPC %obj.y SPC %obj.z, %dyId)) != -1)
 			{
-				//echo("looking : " @ %obj.x SPC %obj.y SPC %obj.z);
 				if (%obj.spaceType == -1) //only setup if we need to
 				{
-					//echo("soace typa!");
 					//at this point we now have a space to map
 					//find its type
 					%obj.maxWidth = %obj.nextFilledSpace(%obj.x SPC %obj.y SPC %obj.z, %dxId);
 					%obj.maxLength = %obj.nextFilledSpace(%obj.x SPC %obj.y SPC %obj.z, %dyId);
 					%obj.maxHeight = %height - %obj.z;
-					//echo("max stuff:" SPC %obj.maxWidth SPC %obj.x SPC %obj.y SPC %obj.z);
+					
 					if (%obj.maxWidth < 1)
 						%obj.maxWidth = getWord(%obj.extent, %dxId);
 					if (%obj.maxLength < 1)
@@ -349,14 +321,11 @@ function BlockManager3d::asyncIndexSpaces(%obj, %callback)
 					%obj.maxWidth = %obj.maxWidth - %obj.x;
 					%obj.maxLength = %obj.maxLength - %obj.y;
 					%obj.curBrick = %obj.checkBrick(%obj.x SPC %obj.y SPC %obj.z);
-					//echo("max stuff:" SPC %obj.maxWidth SPC %obj.maxLength SPC %obj.maxHeight);
 					if (isObject(%obj.curBrick))
 					{
 						//is a filled space
-						//echo("filll");
 						%obj.spaceType = $spaces["filled"];
 						%obj.curLength = %obj.getBrickMax(%obj.curBrick, %dyId) - %obj.y; //update the current length
-						//echo(%obj.curLength SPC %obj.curBrick);
 					}
 					else
 					{
@@ -371,7 +340,6 @@ function BlockManager3d::asyncIndexSpaces(%obj, %callback)
 					//different method depending on the space types
 					if (%obj.spaceType == $spaces["filled"])
 					{
-						//echo("fill tick");
 						//check the next brick, or special case of a new row, check the first spot
 						if (%obj.curLength > 0)
 						{
@@ -387,7 +355,6 @@ function BlockManager3d::asyncIndexSpaces(%obj, %callback)
 							{
 								//alright, the curlength is now the length
 								%obj.spaceLength = %obj.curLength;
-								//echo("SETTING SPACELength TO: " @ %obj.spaceLength);
 								%obj.curLength = 0;
 								%obj.curWidth++;
 							}
@@ -403,7 +370,6 @@ function BlockManager3d::asyncIndexSpaces(%obj, %callback)
 							{
 								//easy, the current width is the correct one
 								%obj.spaceWidth = %obj.curWidth;
-								//echo("SETTING SPACEWIDTH TO: " @ %obj.spaceWidth);
 								%obj.curLength = 0;
 								%obj.curWidth = 0;
 							}
@@ -418,33 +384,29 @@ function BlockManager3d::asyncIndexSpaces(%obj, %callback)
 								}
 							}
 						}
-						//echo("end of tick:" SPC %obj.curLength SPC %obj.spaceLength);
 					}
 					else
 					{
 						//should be easy to check open spaces
 						if (%obj.spaceLength < 1)
 						{
-							//echo("find the length" SPC %obj.maxLength);
 							//ALWAYS come out of here with a length or we could freeze
 							%obj.curBrick = %obj.checkBrick(%obj.x SPC %obj.y SPC %obj.z, %obj.x SPC %obj.y + %obj.maxLength-1 SPC %obj.z);
 							if (isObject(%obj.curBrick))
 							{
 								%obj.spaceLength = %obj.getBrickMin(%obj.curBrick, %dyId) - %obj.y;
-								//echo(%obj.x SPC %obj.y SPC %obj.z SPC "|||" SPC  %obj.x SPC %obj.y + %obj.maxLength-1 SPC %obj.z);
 							}
 							else
 							{
 								%obj.spaceLength = %obj.maxLength;
 							}
 							%obj.curWidth++;
-							//echo("gotta check" SPC %obj.x + %obj.curWidth SPC %obj.y SPC %obj.x);
+							
 							if (isObject(%obj.checkBrick(%obj.x + %obj.curWidth SPC %obj.y SPC %obj.z)))
 								%obj.spaceWidth = %obj.curWidth;
 						}
 						else
 						{
-							//echo("scan start:" SPC %obj.x + %obj.curWidth SPC %obj.y SPC %obj.z SPC "scanend" SPC %obj.x + %obj.curWidth SPC %obj.y + %obj.spaceLength-1 SPC %obj.z);
 							%obj.curBrick = %obj.checkBrick(%obj.x + %obj.curWidth SPC %obj.y SPC %obj.z, %obj.x + %obj.curWidth SPC %obj.y + %obj.spaceLength-1 SPC %obj.z);
 							if (isObject(%obj.curBrick))
 							{
@@ -453,7 +415,6 @@ function BlockManager3d::asyncIndexSpaces(%obj, %callback)
 							else
 							{
 								%obj.curWidth++;
-								//echo("gotta check" SPC %obj.x + %obj.curWidth SPC %obj.y SPC %obj.z);
 								if (isObject(%obj.checkBrick(%obj.x + %obj.curWidth SPC %obj.y SPC %obj.z)))
 									%obj.spaceWidth = %obj.curWidth;
 							}
@@ -468,25 +429,19 @@ function BlockManager3d::asyncIndexSpaces(%obj, %callback)
 					if (%times > %MAXTIME)
 						%obj.paused = true;
 				}
-				//echo("nanananana");
 				//now find the height of this space
-				//echo("type: " @ %obj.spaceType);
 				while (!%obj.paused && %obj.spaceHeight < 1)
 				{
 					if (%obj.spaceType == $spaces["filled"])
 					{
-						//echo("maxheight" SPC %obj.maxHeight SPC %obj.curHeight SPC %obj.spaceHeight);	
 						while (!%obj.paused && %obj.spaceHeight < 1 && %obj.curHeight <= %obj.maxHeight)
 						{
 							while (!%obj.paused && %obj.spaceHeight < 1 && %obj.heightX < %obj.spaceWidth)
 							{
 								while (!%obj.paused && %obj.spaceHeight < 1 && %obj.heightY < %obj.spaceLength)
 								{
-									//echo("this: " SPC %obj. SPC %obj.spaceLength);
-									//echo("check:" SPC %obj.heightX SPC %obj.heightY SPC %obj.z + %obj.curHeight);
 									if (!isObject(%obj.checkBrick(%obj.x + %obj.heightX SPC %obj.y + %obj.heightY SPC %obj.z + %obj.curHeight)))
 									{
-										//echo("baaaad");
 										%obj.spaceHeight = %obj.curHeight;
 									}
 									%times++;
@@ -519,12 +474,12 @@ function BlockManager3d::asyncIndexSpaces(%obj, %callback)
 						{
 							%scanCenter = VectorAdd(%obj.getWorldPosition(%obj.x + %obj.spaceWidth - 1 SPC %obj.y + %obj.spaceLength - 1 SPC %obj.z + %obj.curHeight), %obj.getWorldPosition(%obj.x SPC %obj.y SPC %obj.z + %obj.curHeight));
 							%scanCenter = VectorScale(%scanCenter, 0.5);
-							//echo("scanCenter:" @ %scanCenter SPC %width*%d1Scale SPC %length*%d2Scale SPC %d3Scale/2);
+							
 							initContainerBoxSearch(%scanCenter, %obj.spaceWidth*%dxScale-%dxScale SPC %obj.spaceLength*%dyScale-%dyScale SPC %dzScale/2, $TypeMasks::FxBrickAlwaysObjectType); //this is hard coded to only work with x y z
-							//echo("scancenter:" SPC %scanCenter);
+							
 							%obj.curBrick = containerSearchNext();
 							%times++;
-							//echo("open height" SPC %scanCenter SPC "width" SPC %obj.spaceWidth*%dxScale-%dxScale SPC %obj.spaceLength*%dyScale-%dyScale SPC %dzScale/2);
+							
 							if (%times > %MAXTIME)
 								%obj.paused = true;
 							if (!isObject(%obj.curBrick))
@@ -542,7 +497,6 @@ function BlockManager3d::asyncIndexSpaces(%obj, %callback)
 					//reset stuff
 					%obj.curWidth = 0;
 					%obj.curLength = 0;
-					//echo("adding space: " @ %obj.spaceWidth SPC %obj.spaceLength SPC %obj.spaceHeight);
 					%obj.addSpace(%obj.spaceType, %obj.x SPC %obj.y SPC %obj.z, %obj.spaceWidth SPC %obj.spaceLength SPC %obj.spaceHeight);
 					%obj.spaceWidth = 0;
 					%obj.spaceLength = 0;
@@ -596,7 +550,6 @@ function BlockManager3d::getBrickMax(%obj, %brick, %dim)
 
 function BlockManager3d::addSpace(%obj, %type, %pos, %ext)
 {
-	//echo("add space :D " SPC %type SPC %pos SPC %ext);
 	if (%type == $spaces["filled"])
 	{
 		%obj.filledSpaces[%obj.numFilledSpaces, "position"] = %pos;
@@ -678,7 +631,6 @@ function BlockManager3d::nextFilledSpace(%obj, %pos, %dx)
 
 function BlockManager3d::nextOpenSpace(%obj, %pos, %dx)
 {
-	//echo("find openspace: " @ %pos SPC "||" SPC %dx);
 	%dy = 1 ^ %dx;
 	%dz = 2; //change this
 	
@@ -696,7 +648,7 @@ function BlockManager3d::nextOpenSpace(%obj, %pos, %dx)
 		%spaceMaxX = %spaceMinX + getWord(%obj.getSpaceExtent(%i), %dx) - 1;
 		%spaceMaxY = %spaceMinY + getWord(%obj.getSpaceExtent(%i), %dy) - 1;
 		%spaceMaxZ = %spaceMinZ + getWord(%obj.getSpaceExtent(%i), %dz) - 1;
-		//echo("z checks:" SPC (%z >= %spaceMinZ) SPC (%z <= %spaceMaxZ) SPC %spaceMaxZ);
+		
 		if (%y >= %spaceMinY && %y <= %spaceMaxY && %next >= %spaceMinX && %next <= %spaceMaxX && %z >= %spaceMinZ && %z <= %spaceMaxZ)
 		{
 			%next = %spaceMaxX + 1;
@@ -739,7 +691,7 @@ function BlockManager3d::getWorldPosition(%obj, %pos)
 	%x = VectorScale(%dvx, %dsx * getWord(%pos, 0));
 	%y = VectorScale(%dvy, %dsy * getWord(%pos, 1));
 	%z = VectorScale(%dvz, %dsz * getWord(%pos, 2));
-	//echo("getWorldPosition:" @ %dsy @"|"@ %dvy @"|"@ %y @"|"@ %pos);
+	
 	return VectorAdd(%obj.position, VectorAdd(VectorAdd(%x, %y), %z));
 }
 
@@ -782,7 +734,6 @@ function BlockManager3d::plantSpaces(%obj, %pos)
 
 function BlockManager3d::addToVBL(%obj, %vbl, %pos, %callback, %i, %x, %y, %z)
 {
-	//echo("space:" @ %i SPC %vbl);
 	if (!%i)
 		%i = 0;
 	if (!%x)
@@ -852,7 +803,6 @@ function BlockManager3d::addToVBL(%obj, %vbl, %pos, %callback, %i, %x, %y, %z)
 function onFinishCreateBM(%vbl, %set)
 {
 	%vbl.delete();
-	echo("set the set: " @ %set);
 	$blockmanDelete = %set;
 }
 
@@ -868,12 +818,10 @@ function debugBlock()
 	//new scriptObject(t3d) {class = "BlockManager3d"; position = "263.25 -351.75 6.7"; extent = "74 106 195";dimensions = "x y z";};
 	new ScriptObject(t3d) {class = "BlockManager3d"; position = VectorAdd(_foo.getPosition(), "0 0 -0.2"); extent = "18 18 32"; dimensions = "x y z";};
 	t3d.asyncIndexSpaces("debugBlock2");
-	//echo(VectorAdd(_foo.getPosition(), "0 0 -0.2"));
 }
 
 function debugBlock2(%callback)
 {
-	echo("callback: " @ %callback);
 	if (%callback $= "onAddToVBL")
 		t3dVBL.asyncCreateBricks(clientgroup.getObject(0), clientgroup.getObject(0), "onFinishCreateBM");
 	else

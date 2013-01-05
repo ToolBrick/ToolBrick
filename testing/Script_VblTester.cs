@@ -88,7 +88,7 @@ function virtualBrickList::previewBrick(%obj, %i, %client, %overideClient)
 	%db = %obj.getDatablock(%i);
 	if (!isObject(%db))
 	{
-		echo("data block does not exist!!!" SPC %db);
+		error("data block does not exist!!!" SPC %db);
 		return;
 	}
 	%pos = %obj.getPosition(%i);
@@ -114,7 +114,6 @@ function virtualBrickList::previewBrick(%obj, %i, %client, %overideClient)
 		case 3:
 		%trans = %trans SPC " 0 0 -1" SPC $piOver2;
 	}
-	//echo("Creating brick ", %uiName SPC %db);
 	%b = new fxDTSBrick()
 	{
 		dataBlock = %db;
@@ -127,7 +126,7 @@ function virtualBrickList::previewBrick(%obj, %i, %client, %overideClient)
 	};
 	if (!isObject(%b))
 	{
-		echo("Brick not created!" SPC %db);
+		error("Brick not created!" SPC %db);
 		return;
 	}
 	if(isObject(DoorSO) && DoorSO.getIDFromDatablockBrick(%db) > -1)
@@ -185,7 +184,6 @@ package VBLTester
 	{
 		if (%obj.type $= "vblTester")
 		{
-			echo("dasd");
 			%obj.schedule(100, "delete");
 		}
 	}

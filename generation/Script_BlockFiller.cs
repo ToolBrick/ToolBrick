@@ -36,7 +36,6 @@ function BlockFiller::indexBricks()
 		}
 	}
 }
-//echo(BlockFiller::fillSpace("-2.5 59 0", "1 1 3"));
 //-0.5 -130.5 34
 //BlockFiller::fillSpace("-0.5 -130.5 34", "1 1 3").createBricks();
 //returns a vbl with bricks filling the given space at a given position
@@ -65,7 +64,6 @@ function BlockFiller::fillSpace(%pos, %space)
 				%db = $BlockFiller::bricks[%i];
 				%angles = %db.fitsInSpace(%space);
 				%angle = getWord(%angles, %angleNum);
-				//echo("SPACE!!!!!!!!!!!!!!!" SPC %space SPC %angle SPC %db.getName());
 				if (%angle != 0)
 				{
 					%tried++;
@@ -136,7 +134,6 @@ function BlockFiller::fillSpace(%pos, %space)
 
 function BlockFiller::chunkFill(%pos, %space)
 {
-	echo(%pos SPC %space);
 	%maxX = getWord(%space, 0);
 	%maxY = getWord(%space, 1);
 	%maxZ = getWord(%space, 2);
@@ -149,15 +146,12 @@ function BlockFiller::chunkFill(%pos, %space)
 		{
 			for (%z = 0; %z < %maxZ; %z += 160)
 			{
-				echo(%x SPC %y SPC %z SPC %maxX SPC %maxY SPC %maxZ);
 				%xSpace = ((64 > (%maxX - %x)) ? (%maxX - %x) : 64);
-				echo("called xspace" SPC %xSpace);
 				%ySpace = (64 > ((%maxY - %y)) ? (%maxY - %y) : 64);
-				echo("called yspace" SPC %ySpace);
 				%zSpace = (160 > ((%maxZ - %z)) ? (%maxZ - %z) : 160);
-				echo("called zspace" SPC %zSpace);
+				
 				%cPos = VectorAdd(%pos, %x * 0.5 SPC %y * 0.5 SPC %z * 0.2);
-				echo("Calling Chunk: " @ %cPos SPC ":" SPC %xSpace SPC %ySpace SPC %zSpace);
+				
 				%chunk = BlockFiller::fillSpace(%cPos, %xSpace SPC %ySpace SPC %zSpace);
 				
 				%chunks.addVBL(%chunk);
@@ -196,8 +190,7 @@ function BlockFiller::fillCorners(%c1, %c2)
 		%minZ = %c2z;
 	else
 		%minZ = %c1z;
-	echo(%c1x SPC "c'sss" SPC %c2x);
-	echo("BlockFiller:" SPC %minX SPC %minY SPC %minZ SPC mAbs(%c1x-%c2x) SPC mAbs(%c1y-%c2y) SPC mAbs(%c1z-%c2z));
+	
 	return BlockFiller::fill(%minX SPC %minY SPC %minZ, mAbs(%c1x-%c2x)+1 SPC mAbs(%c1y-%c2y)+1 SPC mAbs(%c1z-%c2z)+1);
 }
 
@@ -282,11 +275,6 @@ package BlockFillerPackage
 			Parent::ServerCmdPlantBrick(%client);
 		}
 	}
-	function ServerCmdMessageSent(%client, %message)
-	{
-		echo(%message);
-		Parent::ServerCmdMessageSent(%client, %message);
-	}
 };
 
 function scaleBuild(%build, %scale)
@@ -295,7 +283,6 @@ function scaleBuild(%build, %scale)
 	%minBound = getWords(%build.getWorldBox(), 0, 2);
 	for (%i = 0; %i < %build.getCount(); %i++)
 	{
-		echo(%i SPC "out of" SPC %build.getCount());
 		%db = %build.getDatablock(%i);
 		%color = %build.getColorId(%i);
 		%minOff = VectorScale(%build.getSize(%i), %scale/2);
@@ -307,10 +294,6 @@ function scaleBuild(%build, %scale)
 		%oPos = VectorAdd(getWords(%build.getObjectBox(%i), 0, 2), %pos);
 		%dif = VectorSub(%oPos, %minBound);
 		%sPos = VectorScale(%dif, %scale);
-		//echo("name" SPC %db.getName() SPC "objectBox:" SPC getWords(%build.getObjectBox(%i), 0, 2));
-		//echo("OPOS:" SPC %oPos SPC "MINBOUND:" SPC %minBound);
-		//echo("SPOS:" SPC %sPOS SPC "BSIZE" SPC %bSize);
-		//echo(%i SPC "SPOS: " @ %sPos SPC %minBound SPC %oPos SPC %dif);
 		
 		%startPos = VectorSub(%newPos, %minOff);
 		%add = BlockFiller::fillSpace(%sPos, %bSize);
@@ -318,7 +301,7 @@ function scaleBuild(%build, %scale)
 			%add.setColorId(%c, %color);
 		%vbl.addVBL(%add);
 	}
-	echo(%vbl.getCount());
+	
 	return %vbl;
 }
 
