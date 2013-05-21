@@ -28,7 +28,7 @@ function inputEvent_GetTargetIndex(%arg1, %arg2, %arg3)
 }
 function virtualBrickList::onAdd(%this, %obj)
 {
-	%obj.absoluteRotation = 0;
+	%obj.listAngleId = 0;
 	%obj.vBricks = new SimSet();
 	%obj.markers = new SimSet();
 }
@@ -389,6 +389,11 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 						%vb.bProps["Item", 2] = getWord(%addArgs, 2);
 					}
 				}
+				else if (%addType $= "ListAngleId")
+				{
+					//this should theoretically only exist once
+					%obj.resetListAngleId(getWord(%addInfo, 0));
+				}
 				else if ($custSavePrefs[%addType])
 					%obj.cs_load(%addType, %vb, %addData, %addInfo, %addArgs, %line);
 			}
@@ -452,6 +457,8 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 		}
 	}
 	
+	%file.writeLine("+-ListAngleId " @ %obj.getListAngleId());
+
 		//name position primary secondary
 	if (%obj.markers.getCount())
 	{
@@ -1231,6 +1238,8 @@ function virtualBrickList::rotateBricksCW(%obj, %times)
 		%vb.bProps["Item", 1] = getNewItemDir(%vb.bProps["Item", 1], %times);
 		%vb.bProps["Item", 0] = (%vb.bProps["Item", 1] + %times) % 4;
 	}
+
+	%obj.resetListAngleId(%obj.getListAngleId() + %times);
 }
 
 function getNewItemDir(%val, %times)
@@ -1251,24 +1260,28 @@ function virtualBrickList::rotateBricksCCW(%obj, %times)
 	%obj.rotateBricksCW(%cw);
 }
 
-function virtualBrickList::setAbsDirection(%obj, %direction)
+function virtualBrickList::getListAngleId(%obj)
 {
-	while (%direction > 3)
-		%direction -= 4;
-	while (%direction < 0)
-		%direction += 4;
-	if (%direction < %obj.absoluteRotation)
-		%direction += 4;
-	%dif = %direction - %obj.absoluteRotation;
-	if (%dif > 0)
-		%obj.rotateBricksCW(%dif);
-	//else if (%dif < 0)
-	//	%obj.rotateBricksCWW(%dif);
-	while (%direction > 3)
-		%direction -= 4;
-	while (%direction < 0)
-		%direction += 4;
-	%obj.absoluteRotation = %direction;
+	return %obj.listAngleId;
+}
+
+function virtualBrickList::setListAngleId(%obj, %angle)
+{
+	%angle %= 4;
+	%curAng = %obj.getListAngleId();
+	
+	if (%angle != %curAng)
+		%obj.rotateBricksCW(%angle - %curAng);
+}
+
+function virtualBrickList::resetListAngleId(%obj, %angle)
+{
+	if (%angle < 0)
+		%angle = (4 - (mAbs(%angle) % 4));
+
+	%angle %= 4;
+
+	%obj.listAngleId = %angle;
 }
 
 function findClientByBlId(%id)
