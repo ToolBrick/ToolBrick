@@ -22,6 +22,14 @@ function newVBL(%returnBrickSet)
 	};
 }
 
+function loadVBL(%bls)
+{
+	%vbl = newVBL();
+	%vbl.loadBLSFile(%bls);
+
+	return %vbl;
+}
+
 function inputEvent_GetTargetIndex(%arg1, %arg2, %arg3)
 {
 	Parent::inputEvent_GetTargetIndex(%arg1, %arg2, %arg3);
