@@ -21,6 +21,14 @@ function newVBL(%returnBrickSet)
 	};
 }
 
+function loadVBL(%bls)
+{
+	%vbl = newVBL();
+	%vbl.loadBLSFile(%bls);
+
+	return %vbl;
+}
+
 function inputEvent_GetTargetIndex(%arg1, %arg2, %arg3)
 {
 	Parent::inputEvent_GetTargetIndex(%arg1, %arg2, %arg3);
@@ -682,6 +690,7 @@ function virtualBrickList::createGhostBrick(%obj, %i)
 		colorFXID = %colorFX;
 		shapeFXID = %shapeFX;
 		isPlanted = true;
+		vbl = %obj.getVirtualBrick(%i);
 	};
 	
 	if (isObject(%b))
@@ -938,6 +947,8 @@ function virtualBrickList::addRealBrick(%obj, %b)
 				%csName = $custSaves[%i, "name"];
 				%obj.cs_addReal(%csName, %vb, %b);
 			}
+
+			return %vb;
 }
 
 function virtualBrickList::addRealBuild(%obj, %brick, %incStr, %excStr)
@@ -1467,6 +1478,17 @@ function virtualBrickList::removeMarker(%obj, %name)
 		%obj.markers[%name].delete();
 		%obj.markers[%name] = "";
 	}
+}
+
+function virtualBrickList::renameMarker(%obj, %oldName, %newName)
+{
+	if (isObject(%obj.markers[%newName]))
+		error("ERROR: virtualBrickList::renameMarker - new marker name already used");
+
+	%marker = %obj.markers[%oldName];
+	%marker.name = %newName;
+	%obj.markers[%newName] = %marker;
+	%obj.markers[%oldName] = "";
 }
 
 function virtualBrickList::getMarkerPrimary(%obj, %name)
