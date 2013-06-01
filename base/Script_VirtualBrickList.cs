@@ -39,6 +39,7 @@ function virtualBrickList::onAdd(%this, %obj)
 	%obj.vBricks = new SimSet();
 	%obj.markers = new SimSet();
 	%obj.brickOffset = "0 0 0";
+	%obj.extentsDirty = false;
 }
 
 function virtualBrickList::onRemove(%this, %obj)
@@ -249,21 +250,32 @@ function virtualBrickList::addBrick(%obj, %datablock, %pos, %angleid, %isBasepla
 
 function virtualBrickList::removeBrick(%obj, %i)
 {
+	%obj.extentsDirty = true;
+
 	%obj.vBricks.remove(%obj.vBricks.getObject(%i));
 }
 
 function virtualBrickList::getSizeX(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	return %obj.maxX - %obj.minX;
 }
 
 function virtualBrickList::getSizeY(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	return %obj.maxY - %obj.minY;
 }
 
 function virtualBrickList::getSizeZ(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	return %obj.maxZ - %obj.minZ;
 }
 
@@ -1064,6 +1076,9 @@ function highlightBricks(%bgroup, %stop)
 
 function virtualBrickList::shiftBricks(%obj, %dis)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	%obj.brickOffset = VectorAdd(%obj.brickOffset, %dis);
 	%x = getWord(%dis, 0);
 	%y = getWord(%dis, 1);
@@ -1087,6 +1102,9 @@ function virtualBrickList::shiftBricks(%obj, %dis)
 
 function virtualBrickList::realign(%obj, %posStr)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	%dirs["north"] = 0;		%dirs[0] = 0;
 	%dirs["east"] = 1;		%dirs[1] = 1;
 	%dirs["south"] = 2;		%dirs[2] = 2;
@@ -1173,6 +1191,9 @@ function virtualBrickList::recenter(%obj, %pos)
 
 function virtualBrickList::getCenter(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	%centX = ((%obj.maxX - %obj.minX) / 2) + %obj.minX;
 	%centY = ((%obj.maxY - %obj.minY) / 2) + %obj.minY;
 	%centZ = ((%obj.maxZ - %obj.minZ) / 2) + %obj.minZ;
@@ -1181,6 +1202,9 @@ function virtualBrickList::getCenter(%obj)
 
 function virtualBrickList::setCorner(%obj, %newCorner)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	%curCorner = %obj.minX SPC %obj.minY SPC %obj.minZ;
 	
 	%shift = VectorSub(%newCorner, %curCorner);
@@ -1190,6 +1214,9 @@ function virtualBrickList::setCorner(%obj, %newCorner)
 
 function virtualBrickList::getWorldBox(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	return %obj.minX SPC %obj.minY SPC %obj.minZ SPC %obj.maxX SPC %obj.maxY SPC %obj.maxZ;
 }
 
@@ -1357,6 +1384,55 @@ function virtualBrickList::onAddBasicData(%obj, %num)
 		%obj.minZ = -%sizeZ + %posZ;
 }
 
+function virtualBrickList::recalculatExtents(%obj)
+{
+	if (%obj.getCount() < 1)
+		%obj.resetSize();
+	else
+	{
+		%sPos = %obj.getPosition(0);
+		%obj.minX = getWord(%sPos, 0);
+		%obj.maxX = getWord(%sPos, 0);
+		%obj.minY = getWord(%sPos, 1);
+		%obj.maxY = getWord(%sPos, 1);
+		%obj.minZ = getWord(%sPos, 2);
+		%obj.maxZ = getWord(%sPos, 2);
+
+		for (%num = 0; %num < %obj.getCount(); %num++)
+		{
+			%sizeX = %obj.getDatablock(%num).brickSizeX / 4;
+			%sizeY = %obj.getDatablock(%num).brickSizeY / 4;
+			%sizeZ = %obj.getDatablock(%num).brickSizeZ * 0.2 / 2;
+			if (%obj.getAngleId(%num) == 1 || %obj.getAngleId(%num) == 3)
+			{
+				%ty = %sizeX;
+				%sizeX = %sizeY;
+				%sizeY = %ty;
+			}
+			%posX = getWord(%obj.getPosition(%num), 0);
+			%posY = getWord(%obj.getPosition(%num), 1);
+			%posZ = getWord(%obj.getPosition(%num), 2);
+
+			if (%obj.maxX < %sizeX + %posX)
+				%obj.maxX = %sizeX + %posX;
+			if (%obj.minX > -%sizeX + %posX)
+				%obj.minX = -%sizeX + %posX;
+			
+			if (%obj.maxY < %sizeY + %posY)
+				%obj.maxY = %sizeY + %posY;
+			if (%obj.minY > -%sizeY + %posY)
+				%obj.minY = -%sizeY + %posY;
+				
+			if (%obj.maxZ < %sizeZ + %posZ)
+				%obj.maxZ = %sizeZ + %posZ;
+			if (%obj.minZ > -%sizeZ + %posZ)
+				%obj.minZ = -%sizeZ + %posZ;
+		}
+	}
+
+	%obj.dirtyExtents = false;
+}
+
 function virtualBrickList::resetSize(%obj)
 {
 	%obj.maxX = "";
@@ -1369,41 +1445,65 @@ function virtualBrickList::resetSize(%obj)
 
 function virtualBrickList::getOffset(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	return %obj.brickOffset;
 }
 
 function virtualBrickList::getCount(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	return %obj.vBricks.getCount();
 }
 
 function virtualBrickList::getNorthFace(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	return %obj.maxY;
 }
 
 function virtualBrickList::getSouthFace(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	return %obj.minY;
 }
 
 function virtualBrickList::getWestFace(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	return %obj.minX;
 }
 
 function virtualBrickList::getEastFace(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	return %obj.maxX;
 }
 
 function virtualBrickList::getBottomFace(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	return %obj.minZ;
 }
 
 function virtualBrickList::getTopFace(%obj)
 {
+	if (%obj.dirtyExtents)
+		%obj.recalculateExtents();
+
 	return %obj.maxZ;
 }
 
