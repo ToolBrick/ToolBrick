@@ -339,7 +339,9 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 			}
 			else if (getSubStr(%line, 0, 2) $= "+-" && %atbricks)// && strstr(%line, "\"") > 0)
 			{
-				%vb = %obj.getVirtualBrick(%curBrick);
+				if (%obj.getCount())
+					%vb = %obj.getVirtualBrick(%curBrick);
+				
 				%addType = getWord(%line, 0);
 				%addType = getSubStr(%addType, 2, strLen(%addType) - 2);
 				%addInStart = strLen(%addType) + 3;
