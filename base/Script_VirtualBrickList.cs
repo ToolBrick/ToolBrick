@@ -795,6 +795,8 @@ function virtualBrickList::standardPlantBrick(%obj, %i, %b)
 		%obj.applyPlantedProperties(%i, %b);
 		%obj.onCreateBrick(%b);
 	}
+	
+	%b.vBrick = %obj.vBricks.getObject(%i);
 	return %b;
 }
 
@@ -959,6 +961,8 @@ function virtualBrickList::addRealBrick(%obj, %b)
 				%csName = $custSaves[%i, "name"];
 				%obj.cs_addReal(%csName, %vb, %b);
 			}
+			
+			%b.vBrick = %vb;
 
 			return %vb;
 }
