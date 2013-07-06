@@ -83,7 +83,7 @@ function VirtualBrickList::preview(%obj)
 	}
 }
 
-function virtualBrickList::previewBrick(%obj, %i, %client, %overideClient)
+function VirtualBrickList::previewBrick(%obj, %i, %client, %overideClient)
 {
 	%db = %obj.getDatablock(%i);
 	if (!isObject(%db))

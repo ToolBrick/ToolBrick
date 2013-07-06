@@ -1,6 +1,6 @@
-//Tool to create a virtualBrickList for a build.
+//Tool to create a VirtualBrickList for a build.
 //A 'build' meaning all bricks connected to this brick (possibly within a certain range).
-//Relies heavily on virtualBrickList functions.
+//Relies heavily on VirtualBrickList functions.
 
 //vbList storage example:
 //$moduleList[158, 0] = aloshivblist;
@@ -45,14 +45,14 @@ function buildSelectorProjectile::onCollision(%this, %obj, %col)
 		return;
 	}
 	
-	//All checks are go - create the virtualBrickList...
+	//All checks are go - create the VirtualBrickList...
 	%vbList = new ScriptObject()
 	{
-		class = "virtualBrickList";
+		class = "VirtualBrickList";
 	};
 	%vbList.addRealBrick(%col); //add the first selected brick
 	
-	//store the virtualBrickList in an array...
+	//store the VirtualBrickList in an array...
 	if($moduleListCount[%client.bl_id] $= "")
 		$moduleListCount[%client.bl_id] = 0;
 	

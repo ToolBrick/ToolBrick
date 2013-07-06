@@ -1,7 +1,7 @@
-//The virtualbricklist will store brick information in multiarrays
+//The VirtualBrickList will store brick information in multiarrays
 //datablock" position angleid unknown color PRINT colorfx shapefx
-//function virtualBrickList::addBrick(%datablock, %pos, %angleid, %unknown, %color, %print, %colorfx, %shapefx)
-//function virtualBrickList::addBrickObj(%brick)
+//function VirtualBrickList::addBrick(%datablock, %pos, %angleid, %unknown, %color, %print, %colorfx, %shapefx)
+//function VirtualBrickList::addBrickObj(%brick)
 //making this change so svn should update
 
 //above text is old
@@ -16,7 +16,7 @@ function newVBL(%returnBrickSet)
 	return new ScriptObject()
 	{
 		//superClass = BrickManipulation;
-		class = virtualBrickList;
+		class = VirtualBrickList;
 		returnBrickSet = %returnBrickSet;
 	};
 }
@@ -33,7 +33,7 @@ function inputEvent_GetTargetIndex(%arg1, %arg2, %arg3)
 {
 	Parent::inputEvent_GetTargetIndex(%arg1, %arg2, %arg3);
 }
-function virtualBrickList::onAdd(%this, %obj)
+function VirtualBrickList::onAdd(%this, %obj)
 {
 	%obj.listAngleId = 0;
 	%obj.vBricks = new SimSet();
@@ -42,7 +42,7 @@ function virtualBrickList::onAdd(%this, %obj)
 	%obj.extentsDirty = false;
 }
 
-function virtualBrickList::onRemove(%this, %obj)
+function VirtualBrickList::onRemove(%this, %obj)
 {
 	%obj.clearList();
 	
@@ -66,161 +66,161 @@ function addCustSave(%pref)
 	$numCustSaves++;
 }
 
-function virtualBrickList::cs_addReal(%obj, %csName, %vb, %brick)
+function VirtualBrickList::cs_addReal(%obj, %csName, %vb, %brick)
 {
 	if (%csName $= "") return;
 	if ($custSavePrefs[%csName])
 		eval("%obj.cs_addReal_" @ %csName @ "(%vb, %brick);");
 }
 
-function virtualBrickList::cs_create(%obj, %csName, %vb, %brick)
+function VirtualBrickList::cs_create(%obj, %csName, %vb, %brick)
 {
 	if (%csName $= "") return;
 	if ($custSavePrefs[%csName])
 		eval("%obj.cs_create_" @ %csName @ "(%vb,  %brick);");
 }
 
-function virtualBrickList::cs_rotateCW(%obj, %csName, %vb, %times)
+function VirtualBrickList::cs_rotateCW(%obj, %csName, %vb, %times)
 {
-	if (isFunction("virtualBrickList", "cs_rotateCW_" @ %csName))
+	if (isFunction("VirtualBrickList", "cs_rotateCW_" @ %csName))
 		eval("%obj.cs_rotateCW_" @ %csName @ "(%vb, %times);");
 }
 
-function virtualBrickList::cs_rotateCCW(%obj, %csName, %vb, %times)
+function VirtualBrickList::cs_rotateCCW(%obj, %csName, %vb, %times)
 {
-	if (isFunction("virtualBrickList", "cs_rotateCCW_" @ %csName))
+	if (isFunction("VirtualBrickList", "cs_rotateCCW_" @ %csName))
 		eval("%obj.cs_rotateCCW_" @ %csName @ "(%vb, %times);");
 }
 
-function virtualBrickList::cs_save(%obj, %csName, %vb, %file)
+function VirtualBrickList::cs_save(%obj, %csName, %vb, %file)
 {
 	if (%csName $= "") return;
 	if ($custSavePrefs[%csName])
 		eval("%obj.cs_save_" @ %csName @ "(%vb,  %file);");
 }
 
-function virtualBrickList::cs_load(%obj, %csName, %vb, %addData, %addInfo, %addArgs, %line)
+function VirtualBrickList::cs_load(%obj, %csName, %vb, %addData, %addInfo, %addArgs, %line)
 {
 	if (%csName $= "") return;
 	if ($custSavePrefs[%csName])
 		eval("%obj.cs_load_" @ %csName @ "(%vb,  %addData, %addInfo, %addArgs, %line);");
 }
 
-function virtualBrickList::getVirtualBrick(%obj, %num)
+function VirtualBrickList::getVirtualBrick(%obj, %num)
 {
 	return %obj.vBricks.getObject(%num);
 }
 
-function virtualBrickList::getDatablock(%obj, %num)
+function VirtualBrickList::getDatablock(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).getDatablock();
 }
-function virtualBrickList::getPosition(%obj, %num)
+function VirtualBrickList::getPosition(%obj, %num)
 {
 	return VectorAdd(%obj.getVirtualBrick(%num).getPosition(), %obj.brickOffset);
 }
-function virtualBrickList::getObjectBox(%obj, %num)
+function VirtualBrickList::getObjectBox(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).getObjectBox();
 }
 
-function virtualBrickList::getWorldBox(%obj, %num)
+function VirtualBrickList::getWorldBox(%obj, %num)
 {
 	%pos = %obj.getPosition(%num);
 	%ob = %obj.getObjectBox(%num);
 	return VectorAdd(%pos, getWords(%ob, 0, 2)) SPC VectorAdd(%pos, getWords(%ob, 3, 5));
 }
-function virtualBrickList::getBrickSize(%obj, %num)
+function VirtualBrickList::getBrickSize(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).getBrickSize();
 }
-function virtualBrickList::getSize(%obj, %num)
+function VirtualBrickList::getSize(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).getSize();
 }
-function virtualBrickList::getAngleId(%obj, %num)
+function VirtualBrickList::getAngleId(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).getAngleId();
 }
-function virtualBrickList::isBP(%obj, %num)
+function VirtualBrickList::isBP(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).isBP();
 }
-function virtualBrickList::getColorId(%obj, %num)
+function VirtualBrickList::getColorId(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).getColorId();
 }
-function virtualBrickList::getPrint(%obj, %num)
+function VirtualBrickList::getPrint(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).getPrint();
 }
-function virtualBrickList::getColorFx(%obj, %num)
+function VirtualBrickList::getColorFx(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).getColorFx();
 }
-function virtualBrickList::getShapeFx(%obj, %num)
+function VirtualBrickList::getShapeFx(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).getShapeFx();
 }
-function virtualBrickList::isRaycasting(%obj, %num)
+function VirtualBrickList::isRaycasting(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).isRaycasting();
 }
-function virtualBrickList::isColliding(%obj, %num)
+function VirtualBrickList::isColliding(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).isColliding();
 }
-function virtualBrickList::isRendering(%obj, %num)
+function VirtualBrickList::isRendering(%obj, %num)
 {
 	return %obj.getVirtualBrick(%num).isRendering();
 }
 
-function virtualBrickList::setDatablock(%obj, %num, %db)
+function VirtualBrickList::setDatablock(%obj, %num, %db)
 {
 	%obj.getVirtualBrick(%num).setDatablock(%db);
 }
-function virtualBrickList::setPosition(%obj, %num, %pos) //takes into account the offset
+function VirtualBrickList::setPosition(%obj, %num, %pos) //takes into account the offset
 {
 	%obj.getVirtualBrick(%num).setPosition(VectorSub(%pos, %obj.brickOffset));
 }
-function virtualBrickList::setAngleId(%obj, %num, %id)
+function VirtualBrickList::setAngleId(%obj, %num, %id)
 {
 	%obj.getVirtualBrick(%num).setAngleId(%id);
 }
-function virtualBrickList::setBP(%obj, %num, %bp)
+function VirtualBrickList::setBP(%obj, %num, %bp)
 {
 	%obj.getVirtualBrick(%num).setBP(%bp);
 }
-function virtualBrickList::setColorId(%obj, %num, %id)
+function VirtualBrickList::setColorId(%obj, %num, %id)
 {
 	%obj.getVirtualBrick(%num).setColorId(%id);
 }
-function virtualBrickList::setPrint(%obj, %num, %print)
+function VirtualBrickList::setPrint(%obj, %num, %print)
 {
 	%obj.getVirtualBrick(%num).setPrint(%print);
 }
-function virtualBrickList::setColorFx(%obj, %num, %fx)
+function VirtualBrickList::setColorFx(%obj, %num, %fx)
 {
 	%obj.getVirtualBrick(%num).setColorFx(%fx);
 }
-function virtualBrickList::setShapeFx(%obj, %num, %fx)
+function VirtualBrickList::setShapeFx(%obj, %num, %fx)
 {
 	%obj.getVirtualBrick(%num).setShapeFx(%fx);
 }
-function virtualBrickList::setRaycasting(%obj, %num, %raycasting)
+function VirtualBrickList::setRaycasting(%obj, %num, %raycasting)
 {
 	%obj.getVirtualBrick(%num).setRaycasting(%raycasting);
 }
-function virtualBrickList::setColliding(%obj, %num, %colliding)
+function VirtualBrickList::setColliding(%obj, %num, %colliding)
 {
 	%obj.getVirtualBrick(%num).setColliding(%colliding);
 }
-function virtualBrickList::setRendering(%obj, %num, %rendering)
+function VirtualBrickList::setRendering(%obj, %num, %rendering)
 {
 	%obj.getVirtualBrick(%num).setRendering(%rendering);
 }
 
-function virtualBrickList::addBrick(%obj, %datablock, %pos, %angleid, %isBaseplate, %color, %print, %colorfx, %shapefx, %raycasting, %collision, %rendering)
+function VirtualBrickList::addBrick(%obj, %datablock, %pos, %angleid, %isBaseplate, %color, %print, %colorfx, %shapefx, %raycasting, %collision, %rendering)
 {
 	//currently assuming this is the only way to insert a brick into the vbl!
 	%idx = %obj.getCount();
@@ -248,14 +248,14 @@ function virtualBrickList::addBrick(%obj, %datablock, %pos, %angleid, %isBasepla
 	return %obj.getCount() - 1;
 }
 
-function virtualBrickList::removeBrick(%obj, %i)
+function VirtualBrickList::removeBrick(%obj, %i)
 {
 	%obj.extentsDirty = true;
 
 	%obj.vBricks.remove(%obj.vBricks.getObject(%i));
 }
 
-function virtualBrickList::getSizeX(%obj)
+function VirtualBrickList::getSizeX(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -263,7 +263,7 @@ function virtualBrickList::getSizeX(%obj)
 	return %obj.maxX - %obj.minX;
 }
 
-function virtualBrickList::getSizeY(%obj)
+function VirtualBrickList::getSizeY(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -271,7 +271,7 @@ function virtualBrickList::getSizeY(%obj)
 	return %obj.maxY - %obj.minY;
 }
 
-function virtualBrickList::getSizeZ(%obj)
+function VirtualBrickList::getSizeZ(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -279,7 +279,7 @@ function virtualBrickList::getSizeZ(%obj)
 	return %obj.maxZ - %obj.minZ;
 }
 
-function virtualBrickList::loadBLSFile(%obj, %fileName)
+function VirtualBrickList::loadBLSFile(%obj, %fileName)
 {
 	$pref::brickColors::num = 0;
 	//if (isFile(%fileName) && fileExt(%fileName) $= ".bls")
@@ -432,13 +432,13 @@ function virtualBrickList::loadBLSFile(%obj, %fileName)
 	//}
 }
 
-function virtualBrickList::exportBLSFile(%obj, %fileName)
+function VirtualBrickList::exportBLSFile(%obj, %fileName)
 {
 	%file = new FileObject();
 	%file.openForWrite(%fileName);
 	%file.writeLine("This is a Blockland save file.  You probably shouldn't modify it cause you'll screw it up.");
 	%file.writeLine("1");
-	//%file.writeLine("This file has been exported from virtualBrickList.");
+	//%file.writeLine("This file has been exported from VirtualBrickList.");
 	%file.writeLine("");
 	//export colors here
 	for (%i = 0; %i < 64; %i++)
@@ -496,7 +496,7 @@ function virtualBrickList::exportBLSFile(%obj, %fileName)
 	%file.delete();
 }
 
-function virtualBrickList::clearList(%obj)
+function VirtualBrickList::clearList(%obj)
 {
 	//Two important notes:
 	//First, this could be bad to do if multiple lists are allowed to reference a single VirtualBrick
@@ -508,7 +508,7 @@ function virtualBrickList::clearList(%obj)
 	%obj.brickOffset = "0 0 0"; //is this alright to do?
 }
 
-function virtualBrickList::createBricks(%obj, %client, %overideClient)
+function VirtualBrickList::createBricks(%obj, %client, %overideClient)
 {
 	%factory = new ScriptObject()
 	{
@@ -520,7 +520,7 @@ function virtualBrickList::createBricks(%obj, %client, %overideClient)
 	return true;
 }
 
-function virtualBrickList::createBricksForBlid(%obj, %blid)
+function VirtualBrickList::createBricksForBlid(%obj, %blid)
 {
 	%factory = new ScriptObject()
 	{
@@ -532,7 +532,7 @@ function virtualBrickList::createBricksForBlid(%obj, %blid)
 	return true;
 }
 
-function virtualBrickList::createBricksNoOwner(%obj)
+function VirtualBrickList::createBricksNoOwner(%obj)
 {
 	%factory = new ScriptObject()
 	{
@@ -636,7 +636,7 @@ function BrickFactory::onCreateBrick(%obj, %brick)
 	//stub to be overridden
 }
 
-function virtualBrickList::asyncCreateBricks(%obj, %client, %overideClient, %callback, %pass, %set)
+function VirtualBrickList::asyncCreateBricks(%obj, %client, %overideClient, %callback, %pass, %set)
 {
 	if (%client $= "")
 		%client = 0;
@@ -663,7 +663,7 @@ function virtualBrickList::asyncCreateBricks(%obj, %client, %overideClient, %cal
 	}
 }
 
-function virtualBrickList::createGhostBrick(%obj, %i)
+function VirtualBrickList::createGhostBrick(%obj, %i)
 {
 	%db = %obj.getDatablock(%i);
 	if (!isObject(%db))
@@ -722,7 +722,7 @@ function virtualBrickList::createGhostBrick(%obj, %i)
 	return %b;
 }
 
-function virtualBrickList::applyCustomSaves(%obj, %i, %b)
+function VirtualBrickList::applyCustomSaves(%obj, %i, %b)
 {
 	%vb = %obj.getVirtualBrick(%i);
 	for (%cs = 0; %cs < $numCustSaves; %cs++)
@@ -732,7 +732,7 @@ function virtualBrickList::applyCustomSaves(%obj, %i, %b)
 	}
 }
 
-function virtualBrickList::applyPlantedProperties(%obj, %i, %b)
+function VirtualBrickList::applyPlantedProperties(%obj, %i, %b)
 {
 	%vb = %obj.getVirtualBrick(%i);
 	if (isObject(%vb.bProps["Emitter"]))
@@ -759,7 +759,7 @@ function virtualBrickList::applyPlantedProperties(%obj, %i, %b)
 	}
 }
 
-function virtualBrickList::createBasicBrick(%obj, %i)
+function VirtualBrickList::createBasicBrick(%obj, %i)
 {
 	%b = %obj.createGhostBrick(%i);
 	%obj.applyCustomSaves(%i, %b);
@@ -775,7 +775,7 @@ function fxDTSBrick::vblPlant(%b)
 	return %err;
 }
 
-function virtualBrickList::standardPlantBrick(%obj, %i, %b)
+function VirtualBrickList::standardPlantBrick(%obj, %i, %b)
 {
 	%err = %b.vblPlant();
 	//plant() returns an integer:
@@ -802,7 +802,7 @@ function virtualBrickList::standardPlantBrick(%obj, %i, %b)
 	return %b;
 }
 
-function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
+function VirtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 {
 	%b = %obj.createBasicBrick(%i);
 	
@@ -842,7 +842,7 @@ function virtualBrickList::createBrick(%obj, %i, %client, %overideClient)
 }
 
 //custom save prefs will still give it an owner if available
-function virtualBrickList::createBrickNoOwner(%obj, %i)
+function VirtualBrickList::createBrickNoOwner(%obj, %i)
 {
 	%b = %obj.createBasicBrick(%i);
 	
@@ -853,12 +853,12 @@ function virtualBrickList::createBrickNoOwner(%obj, %i)
 	return %b;
 }
 
-function virtualBrickList::onCreateBrick(%obj, %b)
+function VirtualBrickList::onCreateBrick(%obj, %b)
 {
 	//override this
 }
 
-function virtualBrickList::loadBricks(%obj)
+function VirtualBrickList::loadBricks(%obj)
 {
 	for (%i = 0; %i < mainBrickGroup.getCount(); %i++)
 	{
@@ -871,7 +871,7 @@ function virtualBrickList::loadBricks(%obj)
 	}
 }
 
-function virtualBrickList::loadBLIDBricks(%obj, %id)
+function VirtualBrickList::loadBLIDBricks(%obj, %id)
 {
 	%group = "BrickGroup_" @ %id;
 	if (isObject(%group))
@@ -883,7 +883,7 @@ function virtualBrickList::loadBLIDBricks(%obj, %id)
 	}
 }
 
-function virtualBrickList::addVBL(%obj, %vbl)
+function VirtualBrickList::addVBL(%obj, %vbl)
 {
 	for (%i = 0; %i < %vbl.getCount(); %i++)
 	{
@@ -901,7 +901,7 @@ function virtualBrickList::addVBL(%obj, %vbl)
 	}
 }
 
-function virtualBrickList::addSet(%obj, %set)
+function VirtualBrickList::addSet(%obj, %set)
 {
 	for (%i = 0; %i < %set.getCount(); %i++)
 	{
@@ -910,7 +910,7 @@ function virtualBrickList::addSet(%obj, %set)
 	}
 }
 
-function virtualBrickList::addRealBrick(%obj, %b)
+function VirtualBrickList::addRealBrick(%obj, %b)
 {
 			//time to add the bricks! %obj, %datablock, %pos, %angleid, %isBaseplate, %color, %print, %colorfx, %shapefx
 			%num = %obj.addBrick(%b.getDataBlock(), %b.getPosition(), %b.getAngleId(), %b.isBP(), %b.getColorId(), %b.getPrintId(), %b.getColorFxId(), %b.getShapeFxId(), %b.isRaycasting(), %b.isColliding(), %b.isRendering());
@@ -969,7 +969,7 @@ function virtualBrickList::addRealBrick(%obj, %b)
 			return %vb;
 }
 
-function virtualBrickList::addRealBuild(%obj, %brick, %incStr, %excStr)
+function VirtualBrickList::addRealBuild(%obj, %brick, %incStr, %excStr)
 {
 	if (%incStr $= "")
 		%incStr = "all";
@@ -984,17 +984,17 @@ function virtualBrickList::addRealBuild(%obj, %brick, %incStr, %excStr)
 	%obj.bf.search(%brick, "chain", "all", "", 1);
 }
 
-function virtualBrickList::onFoundRealBrick(%obj, %sb)
+function VirtualBrickList::onFoundRealBrick(%obj, %sb)
 {
 	%obj.addRealBrick(%sb);
 }
 
-function virtualBrickList::onFinishAddingBuild(%obj, %bf)
+function VirtualBrickList::onFinishAddingBuild(%obj, %bf)
 {
 	%obj.bf.delete();
 }
 
-function virtualBrickList::importBuild(%obj, %base, %getDown, %flash)
+function VirtualBrickList::importBuild(%obj, %base, %getDown, %flash)
 {
 	if (!%base.getClassName() $= "fxDTSBrick")
 		return;
@@ -1080,7 +1080,7 @@ function highlightBricks(%bgroup, %stop)
 	}
 }
 
-function virtualBrickList::shiftBricks(%obj, %dis)
+function VirtualBrickList::shiftBricks(%obj, %dis)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1106,7 +1106,7 @@ function virtualBrickList::shiftBricks(%obj, %dis)
 
 
 
-function virtualBrickList::realign(%obj, %posStr)
+function VirtualBrickList::realign(%obj, %posStr)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1158,33 +1158,33 @@ function virtualBrickList::realign(%obj, %posStr)
 		%obj.shiftBricks(%xOff SPC %yOff SPC %zOff);
 }
 
-function virtualBrickList::alignNorthOf(%obj, %other)
+function VirtualBrickList::alignNorthOf(%obj, %other)
 {
 	%obj.realign(0 SPC %other.getFace(2));
 }
-function virtualBrickList::alignEastOf(%obj, %other)
+function VirtualBrickList::alignEastOf(%obj, %other)
 {
 	%obj.realign(1 SPC %other.getFace(3));
 }
-function virtualBrickList::alignSouthOf(%obj, %other)
+function VirtualBrickList::alignSouthOf(%obj, %other)
 {
 	%obj.realign(2 SPC %other.getFace(0));
 }
-function virtualBrickList::alignWestOf(%obj, %other)
+function VirtualBrickList::alignWestOf(%obj, %other)
 {
 	%obj.realign(3 SPC %other.getFace(1));
 }
-function virtualBrickList::alignTopOf(%obj, %other)
+function VirtualBrickList::alignTopOf(%obj, %other)
 {
 	%obj.realign(4 SPC %other.getFace(5));
 	%obj.realign(5 SPC %other.getFace(4));
 }
-function virtualBrickList::alignBottomOf(%obj, %other)
+function VirtualBrickList::alignBottomOf(%obj, %other)
 {
 	%obj.realign(5 SPC %other.getFace(4));
 }
 
-function virtualBrickList::recenter(%obj, %pos)
+function VirtualBrickList::recenter(%obj, %pos)
 {
 	%cen = %obj.getCenter();
 	%dis = VectorSub(%pos, %cen);
@@ -1195,7 +1195,7 @@ function virtualBrickList::recenter(%obj, %pos)
 	
 }
 
-function virtualBrickList::getCenter(%obj)
+function VirtualBrickList::getCenter(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1206,7 +1206,7 @@ function virtualBrickList::getCenter(%obj)
 	return %centX SPC %centY SPC %centZ;
 }
 
-function virtualBrickList::setCorner(%obj, %newCorner)
+function VirtualBrickList::setCorner(%obj, %newCorner)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1218,7 +1218,7 @@ function virtualBrickList::setCorner(%obj, %newCorner)
 	%obj.shiftBricks(%shift);
 }
 
-function virtualBrickList::getWorldBox(%obj)
+function VirtualBrickList::getWorldBox(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1226,7 +1226,7 @@ function virtualBrickList::getWorldBox(%obj)
 	return %obj.minX SPC %obj.minY SPC %obj.minZ SPC %obj.maxX SPC %obj.maxY SPC %obj.maxZ;
 }
 
-function virtualBrickList::rotateBricksCW(%obj, %times)
+function VirtualBrickList::rotateBricksCW(%obj, %times)
 {
 	if (%times $= "")
 		%times = 1;
@@ -1301,18 +1301,18 @@ function getNewItemDir(%val, %times)
 	return %val;
 }
 
-function virtualBrickList::rotateBricksCCW(%obj, %times)
+function VirtualBrickList::rotateBricksCCW(%obj, %times)
 {
 	%cw = (4 - (%times % 4)) % 4;
 	%obj.rotateBricksCW(%cw);
 }
 
-function virtualBrickList::getListAngleId(%obj)
+function VirtualBrickList::getListAngleId(%obj)
 {
 	return %obj.listAngleId;
 }
 
-function virtualBrickList::setListAngleId(%obj, %angle)
+function VirtualBrickList::setListAngleId(%obj, %angle)
 {
 	%angle %= 4;
 	%curAng = %obj.getListAngleId();
@@ -1321,7 +1321,7 @@ function virtualBrickList::setListAngleId(%obj, %angle)
 		%obj.rotateBricksCW(%angle - %curAng);
 }
 
-function virtualBrickList::resetListAngleId(%obj, %angle)
+function VirtualBrickList::resetListAngleId(%obj, %angle)
 {
 	if (%angle < 0)
 		%angle = (4 - (mAbs(%angle) % 4));
@@ -1343,7 +1343,7 @@ function findClientByBlId(%id)
 }
 
 //stuff that should go in the brick manipulation class
-function virtualBrickList::onAddBasicData(%obj, %num)
+function VirtualBrickList::onAddBasicData(%obj, %num)
 {
 	if (!isObject(%obj.getDatablock(%num)))
 		return;
@@ -1390,7 +1390,7 @@ function virtualBrickList::onAddBasicData(%obj, %num)
 		%obj.minZ = -%sizeZ + %posZ;
 }
 
-function virtualBrickList::recalculatExtents(%obj)
+function VirtualBrickList::recalculatExtents(%obj)
 {
 	if (%obj.getCount() < 1)
 		%obj.resetSize();
@@ -1439,7 +1439,7 @@ function virtualBrickList::recalculatExtents(%obj)
 	%obj.dirtyExtents = false;
 }
 
-function virtualBrickList::resetSize(%obj)
+function VirtualBrickList::resetSize(%obj)
 {
 	%obj.maxX = "";
 	%obj.maxY = "";
@@ -1449,7 +1449,7 @@ function virtualBrickList::resetSize(%obj)
 	%obj.minZ = "";
 }
 
-function virtualBrickList::getOffset(%obj)
+function VirtualBrickList::getOffset(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1457,7 +1457,7 @@ function virtualBrickList::getOffset(%obj)
 	return %obj.brickOffset;
 }
 
-function virtualBrickList::getCount(%obj)
+function VirtualBrickList::getCount(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1465,7 +1465,7 @@ function virtualBrickList::getCount(%obj)
 	return %obj.vBricks.getCount();
 }
 
-function virtualBrickList::getNorthFace(%obj)
+function VirtualBrickList::getNorthFace(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1473,7 +1473,7 @@ function virtualBrickList::getNorthFace(%obj)
 	return %obj.maxY;
 }
 
-function virtualBrickList::getSouthFace(%obj)
+function VirtualBrickList::getSouthFace(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1481,7 +1481,7 @@ function virtualBrickList::getSouthFace(%obj)
 	return %obj.minY;
 }
 
-function virtualBrickList::getWestFace(%obj)
+function VirtualBrickList::getWestFace(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1489,7 +1489,7 @@ function virtualBrickList::getWestFace(%obj)
 	return %obj.minX;
 }
 
-function virtualBrickList::getEastFace(%obj)
+function VirtualBrickList::getEastFace(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1497,7 +1497,7 @@ function virtualBrickList::getEastFace(%obj)
 	return %obj.maxX;
 }
 
-function virtualBrickList::getBottomFace(%obj)
+function VirtualBrickList::getBottomFace(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1505,7 +1505,7 @@ function virtualBrickList::getBottomFace(%obj)
 	return %obj.minZ;
 }
 
-function virtualBrickList::getTopFace(%obj)
+function VirtualBrickList::getTopFace(%obj)
 {
 	if (%obj.dirtyExtents)
 		%obj.recalculateExtents();
@@ -1513,7 +1513,7 @@ function virtualBrickList::getTopFace(%obj)
 	return %obj.maxZ;
 }
 
-function virtualBrickList::getFace(%obj, %dir)
+function VirtualBrickList::getFace(%obj, %dir)
 {
 	switch (%dir)
 	{
@@ -1534,15 +1534,15 @@ function virtualBrickList::getFace(%obj, %dir)
 }
 
 //markers
-function virtualBrickList::addMarker(%obj, %name, %point, %pDir, %sDir)
+function VirtualBrickList::addMarker(%obj, %name, %point, %pDir, %sDir)
 {
 	if (isObject(%obj.markers[%name]))
 	{
-		error("ERROR: virtualBrickList::addMarker - marker name already used");
+		error("ERROR: VirtualBrickList::addMarker - marker name already used");
 	}
 	else if (%pDir < 0 || %pDir > 5)
 	{
-		error("ERROR: virtualBrickList::addMarker - primary direction is incorrect");
+		error("ERROR: VirtualBrickList::addMarker - primary direction is incorrect");
 	}
 	else
 	{
@@ -1555,7 +1555,7 @@ function virtualBrickList::addMarker(%obj, %name, %point, %pDir, %sDir)
 		}
 		if ((%sDir < 4 && %pDir < 4) || (%sDir > 3 && %pDir > 3))
 		{
-			error("ERROR: virtualBrickList::addMarker - secondary direction is incorrect");
+			error("ERROR: VirtualBrickList::addMarker - secondary direction is incorrect");
 		}
 		else
 		{
@@ -1576,7 +1576,7 @@ function virtualBrickList::addMarker(%obj, %name, %point, %pDir, %sDir)
 	}
 }
 
-function virtualBrickList::removeMarker(%obj, %name)
+function VirtualBrickList::removeMarker(%obj, %name)
 {
 	if (isObject(%obj.markers[%name]))
 	{
@@ -1586,10 +1586,10 @@ function virtualBrickList::removeMarker(%obj, %name)
 	}
 }
 
-function virtualBrickList::renameMarker(%obj, %oldName, %newName)
+function VirtualBrickList::renameMarker(%obj, %oldName, %newName)
 {
 	if (isObject(%obj.markers[%newName]))
-		error("ERROR: virtualBrickList::renameMarker - new marker name already used");
+		error("ERROR: VirtualBrickList::renameMarker - new marker name already used");
 
 	%marker = %obj.markers[%oldName];
 	%marker.name = %newName;
@@ -1597,17 +1597,17 @@ function virtualBrickList::renameMarker(%obj, %oldName, %newName)
 	%obj.markers[%oldName] = "";
 }
 
-function virtualBrickList::getMarkerPrimary(%obj, %name)
+function VirtualBrickList::getMarkerPrimary(%obj, %name)
 {
 	return %obj.markers[%name].primary;
 }
 
-function virtualBrickList::getMarkerSecondary(%obj, %name)
+function VirtualBrickList::getMarkerSecondary(%obj, %name)
 {
 	return %obj.markers[%name].secondary;
 }
 
-function virtualBrickList::getMarkerPosition(%obj, %name)
+function VirtualBrickList::getMarkerPosition(%obj, %name)
 {
 	return %obj.markers[%name].position;
 }

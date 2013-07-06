@@ -157,7 +157,7 @@ function GridToolCollision(%obj, %col)
 
 package VblGridPackage
 {
-	function virtualBrickList::onFinishAddingBuild(%obj, %bf)
+	function VirtualBrickList::onFinishAddingBuild(%obj, %bf)
 	{
 		Parent::onFinishAddingBuild(%bf);
 		

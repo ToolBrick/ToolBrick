@@ -10,7 +10,7 @@
 
 addCustSave("OWNER");
 
-function virtualBrickList::cs_addReal_OWNER(%obj, %vb, %b)
+function VirtualBrickList::cs_addReal_OWNER(%obj, %vb, %b)
 {
 	if (%b.getGroup().bl_id !$= "")
 		%vb.props["OWNER"] = %b.getGroup().bl_id;
@@ -18,7 +18,7 @@ function virtualBrickList::cs_addReal_OWNER(%obj, %vb, %b)
 		%vb.props["OWNER"] = "";
 }
 
-function virtualBrickList::cs_create_OWNER(%obj, %vb, %b)
+function VirtualBrickList::cs_create_OWNER(%obj, %vb, %b)
 {
 	if (%vb.props["OWNER"] $= "")
 		return;
@@ -37,25 +37,25 @@ function virtualBrickList::cs_create_OWNER(%obj, %vb, %b)
 	%b.stackBL_ID = %brickGroup.bl_id;
 }
 
-function virtualBrickList::cs_save_OWNER(%obj, %vb, %file)
+function VirtualBrickList::cs_save_OWNER(%obj, %vb, %file)
 {
 	if (%vb.props["OWNER"] !$= "")
 		%file.writeLine("+-OWNER " @ %vb.props["OWNER"]);
 }
 
-function virtualBrickList::cs_load_OWNER(%obj, %vb, %addData, %addInfo, %addArgs)
+function VirtualBrickList::cs_load_OWNER(%obj, %vb, %addData, %addInfo, %addArgs)
 {
 	%vb.props["OWNER"] = %addInfo;
 }
 
 addCustSave("NTOBJECTNAME");
-function virtualBrickList::cs_addReal_NTOBJECTNAME(%obj, %vb, %brick)
+function VirtualBrickList::cs_addReal_NTOBJECTNAME(%obj, %vb, %brick)
 {
 	if (strLen(%brick.getName()) > 0) %vb.props["NTOBJECTNAME"] = %brick.getName();
 	else %vb.props["NTOBJECTNAME"] = "";
 }
 
-function virtualBrickList::cs_create_NTOBJECTNAME(%obj, %vb, %brick)
+function VirtualBrickList::cs_create_NTOBJECTNAME(%obj, %vb, %brick)
 {
 	if (strLen(%vb.props["NTOBJECTNAME"]) > 0)
 	{
@@ -63,19 +63,19 @@ function virtualBrickList::cs_create_NTOBJECTNAME(%obj, %vb, %brick)
 	}
 }
 
-function virtualBrickList::cs_save_NTOBJECTNAME(%obj, %vb, %file)
+function VirtualBrickList::cs_save_NTOBJECTNAME(%obj, %vb, %file)
 {
 	if (strLen(%vb.props["NTOBJECTNAME"]) > 0)
 		%file.writeLine("+-NTOBJECTNAME" SPC %vb.props["NTOBJECTNAME"]);
 }
 
-function virtualBrickList::cs_load_NTOBJECTNAME(%obj, %vb, %addData, %addInfo, %addArgs, %line)
+function VirtualBrickList::cs_load_NTOBJECTNAME(%obj, %vb, %addData, %addInfo, %addArgs, %line)
 {
 	%vb.props["NTOBJECTNAME"] = %addInfo;
 }
 
 addCustSave("EVENT");
-function virtualBrickList::cs_addReal_EVENT(%obj, %vb, %brick)
+function VirtualBrickList::cs_addReal_EVENT(%obj, %vb, %brick)
 {
 	if (%brick.numEvents)
 	{
@@ -99,7 +99,7 @@ function virtualBrickList::cs_addReal_EVENT(%obj, %vb, %brick)
 	else %vb.props["EVENT"] = 0;
 }
 
-function virtualBrickList::cs_create_EVENT(%obj, %vb, %brick)
+function VirtualBrickList::cs_create_EVENT(%obj, %vb, %brick)
 {
 	for (%i = 0; %i < %vb.props["EVENT"]; %i++)
 	{
@@ -126,7 +126,7 @@ function virtualBrickList::cs_create_EVENT(%obj, %vb, %brick)
 	}
 }
 
-function virtualBrickList::cs_rotateCW_Event(%obj, %vb, %times)
+function VirtualBrickList::cs_rotateCW_Event(%obj, %vb, %times)
 {
 	%times %= 4;
 	//is it a good idea to declare constants inside a function called multiple times?
@@ -183,13 +183,13 @@ function rotateVector(%vec, %amt)
 	}
 }
 	
-function virtualBrickList::cs_rotateCCW_Event(%obj, %vb, %times)
+function VirtualBrickList::cs_rotateCCW_Event(%obj, %vb, %times)
 {
 	%cw = (4 - (%times % 4)) % 4;
 	%obj.cs_rotateCW_Event(%vb, %cw);
 }
 
-function virtualBrickList::cs_save_EVENT(%obj, %vb, %file)
+function VirtualBrickList::cs_save_EVENT(%obj, %vb, %file)
 {
 	for (%i = 0; %i < %vb.props["EVENT"]; %i++)
 	{
@@ -223,7 +223,7 @@ function virtualBrickList::cs_save_EVENT(%obj, %vb, %file)
 	}
 }
 
-function virtualBrickList::cs_load_EVENT(%obj, %vb, %addData, %addInfo, %addArgs, %line)
+function VirtualBrickList::cs_load_EVENT(%obj, %vb, %addData, %addInfo, %addArgs, %line)
 {
 	//unnamed brick loading:
 	//+-EVENT^0^1^onActivate^0^Player^^AddVelocity^0 0 50	^^
@@ -286,24 +286,24 @@ function virtualBrickList::cs_load_EVENT(%obj, %vb, %addData, %addInfo, %addArgs
 
 addCustSave("noimport");
 
-function virtualBrickList::cs_addReal_noimport(%obj, %vb, %brick)
+function VirtualBrickList::cs_addReal_noimport(%obj, %vb, %brick)
 {
 	if (%brick.noImport) %vb.props["noimport"] = 1;
 	else %vb.props["noimport"] = 0;
 }
 
-function virtualBrickList::cs_create_noimport(%obj, %vb, %brick)
+function VirtualBrickList::cs_create_noimport(%obj, %vb, %brick)
 {
 	if (%vb.props["noimport"]) %brick.noImport = 1;
 }
 
-function virtualBrickList::cs_save_noimport(%obj, %vb, %file)
+function VirtualBrickList::cs_save_noimport(%obj, %vb, %file)
 {
 	if (%vb.props["noimport"])
 		%file.writeLine("+-NOIMPORT " @ 1 @ "\"");
 }
 
-function virtualBrickList::cs_load_noimport(%obj, %vb, %addData, %addInfo, %addArgs)
+function VirtualBrickList::cs_load_noimport(%obj, %vb, %addData, %addInfo, %addArgs)
 {
 	%vb.props["noimport"] = 1;
 }

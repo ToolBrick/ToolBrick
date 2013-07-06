@@ -1,5 +1,5 @@
 //The point of this script is to make a system that can easily locate special bricks
-//The manipulator/virtualbricklist will be the first to use this but it should be very useful for
+//The manipulator/VirtualBrickList will be the first to use this but it should be very useful for
 //brick gamemodes
 
 function brickFinder::onAdd(%obj)
