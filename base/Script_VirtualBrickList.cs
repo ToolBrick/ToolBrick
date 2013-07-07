@@ -29,10 +29,6 @@ function loadVBL(%bls)
 	return %vbl;
 }
 
-function inputEvent_GetTargetIndex(%arg1, %arg2, %arg3)
-{
-	Parent::inputEvent_GetTargetIndex(%arg1, %arg2, %arg3);
-}
 function VirtualBrickList::onAdd(%this, %obj)
 {
 	%obj.listAngleId = 0;
